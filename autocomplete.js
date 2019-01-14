@@ -1,11 +1,11 @@
 "use strict";
 
-var debug = true;
+var debug = false;
 const log = debug ? console.log : function () {};
 var selectedList = {};
 let blocked = [];
 var occupied = [];
-const load = $.getJSON("course.json", function(json) {
+const load = $.getJSON("http://47.104.9.250/course.json", function(json) {
     return json; // this will show the info it in firebug console
 });
 var credit = 0;
