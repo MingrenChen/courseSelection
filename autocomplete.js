@@ -1,11 +1,12 @@
 "use strict";
 
-var debug = false;
+var debug = true;
 const log = debug ? console.log : function () {};
 var selectedList = {};
 let blocked = [];
 var occupied = [];
-const load = $.getJSON("http://47.104.9.250/course.json", function(json) {
+// const load = $.getJSON("http://47.104.9.250/course.json", function(json) {
+const load = $.getJSON("course.json", function(json) {
     return json; // this will show the info it in firebug console
 });
 var credit = 0;
@@ -309,7 +310,8 @@ function htmlOfSelection(courses, coursecode) {
         if (type==="PRA") pra.push(Object.keys(course)[i])
     }
     const lectures_div = document.createElement('div');
-    lectures_div.id = "lecture";
+    lectures_div.classList.add("lecture")
+    lectures_div.id = coursecode + "|lecture";
     lectures_div.style = "font-size: small;color: black;text-align:bottom";
     const lec_span = document.createElement('div');
     lec_span.innerHTML = "LEC: <br/>";
@@ -327,7 +329,8 @@ function htmlOfSelection(courses, coursecode) {
     outerdiv.appendChild(lectures_div);
     if (tut.length !== 0) {
         const tutorials_div = document.createElement('div');
-        tutorials_div.id = "tutorial";
+        tutorials_div.classList.add("tutorial")
+        tutorials_div.id = coursecode + "|tutorial";
         tutorials_div.style = "font-size: small;color: black;text-align:bottom";
         const tut_span = document.createElement('div');
         tut_span.innerHTML = "TUT: <br/>";
@@ -346,7 +349,8 @@ function htmlOfSelection(courses, coursecode) {
     }
     if (pra.length !== 0) {
         const practises_div = document.createElement('div');
-        practises_div.id = "practice";
+        practises_div.id = coursecode + "|practice";
+        practises_div.classList.add("practice")
         practises_div.style = "font-size: small;color: black;text-align:bottom";
         const pra_span = document.createElement('div');
         pra_span.innerHTML = "PRA: <br/>";
@@ -409,8 +413,12 @@ function addGraphForOneSection(sectionInfo, id) {
         let startGrid = getGridIdByDayTime(schedule.meetingDay, schedule.meetingStartTime, sectionInfo.sectionType);
         let endGrid = getGridIdByDayTime(schedule.meetingDay, schedule.meetingEndTime, sectionInfo.sectionType) - 1;
         let duration = endGrid - startGrid + 1;
+        if (startGrid === null || startGrid===undefined){
+            return;
+        }
         let floating = document.createElement("div");
         let grid = document.getElementById(startGrid);
+
         floating.classList.add("courseGraph");
         floating.classList.add(id);
         floating.id = id + "|" + Object.keys(sectionInfo.schedule)[i];
@@ -704,10 +712,14 @@ function update_cookie() {
     const expires = "expires="+ d.toUTCString();
     document.cookie = "courses" + "=" + cookie_str + "&blocked="
         + blockTimes + ";" + expires + ";path=/";
- }
+    document.cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
+
+}
 
 function load_cookie(courses) {
     if (document.cookie){
+        // let b  = document.cookie.split(";")
+        // log("B " + b + "\n")
         let temp_block = JSON.parse(document.cookie.split("&")[1].split("=")[1]);
         let temp = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
         for (let i=0;i<Object.keys(temp).length;i++){
@@ -725,7 +737,6 @@ function load_cookie(courses) {
 // eastern egg
 function logoclick() {
     egg += 1
-    log(egg)
     if (egg > 10){
         egg = 0;
         document.onclick = "none"
@@ -785,8 +796,7 @@ function logoclick() {
                     aDiv[i].style.left=aDiv[i].offsetLeft+aDiv[i].speedX+'px';
                     aDiv[i].style.top=aDiv[i].offsetTop+aDiv[i].speedY+'px';
                     aDiv[i].speedY+=1;
-                    if(aDiv[i].offsetLeft<0 || aDiv[i].offsetLeft>document.documentElement.clientWidth || aDiv[i].offsetTop<0 || aDiv[i].offsetTop>document.documentElement.clientHeight)
-                    {
+                    if(aDiv[i].offsetLeft<0 || aDiv[i].offsetLeft>document.documentElement.clientWidth || aDiv[i].offsetTop<0 || aDiv[i].offsetTop>document.documentElement.clientHeight) {
                         document.body.removeChild(aDiv[i]);
                         aDiv.splice(i, 1);
                     }
@@ -796,12 +806,147 @@ function logoclick() {
     }
 }
 
+// ======================== auto select course =========================
+function SectionNode(schedule, sectionType, id) {
+    this.sectionType = sectionType;
+    this.id = id;
+    this.startGrids = [];
+    this.endGrids = [];
+    this.day = []
+    let arr = []
+    Object.values(schedule).forEach(meeting => {
+        let start = getGridIdByDayTime(meeting.meetingDay, meeting.meetingStartTime, sectionType);
+        let end = getGridIdByDayTime(meeting.meetingDay, meeting.meetingEndTime, sectionType);
+        this.startGrids.push(start)
+        this.endGrids.push(end)
+        this.day.push(meeting.meetingDay)
+        arr.push(start%26)
+    });
+    function getMinMax(arr) {
+        let min = arr[0];
+        let max = arr[0];
+        let i = arr.length;
+        while (i--) {
+            min = arr[i] < min ? arr[i] : min;
+            max = arr[i] > max ? arr[i] : max;
+        }
+        return { min, max };
+    }
+    let k = getMinMax(arr)
+    this.earlist = k.min
+}
+
+function autoSelect(autotype) {
+    let missing_sections = getMissing()
+    load.then(courses => {
+        missing_sections.forEach(section => {
+            let selections = []
+            let sections = section.getElementsByClassName("coursebutton")
+            for (let i = 0; i < sections.length; i++) {
+                selections.push(new SectionNode(courses[sections[i].id.split("|")[0]].
+                    meetings[sections[i].id.split("|")[1]].schedule, courses[sections[i].id.split("|")[0]].section, sections[i].id))
+            }
+            if (autotype === "LATE") noMorning(selections);
+            if (autotype === "BALANCE") shuffle(selections);
+            if (autotype === "EARLY") noNight(selections);
+            if (autotype === "Long Weekend") noFriday(selections);
+
+            for (let i=0;i < selections.length;i++){
+                if (noConflict(selections[i])){
+                    selectSection(selections[i].id)
+                    break
+                }
+            }
+
+        })
+
+    })
+}
+
+function noConflict(SectionNode) {
+    let all_ = []
+    let graphs = document.getElementsByClassName("courseGraph");
+    for (let i=0;i<graphs.length;i++){
+        let start = parseInt(graphs[i].parentNode.id)
+        let duration = graphs[i].offsetHeight/25;
+        for (let j=0;j<duration;j++) all_.push(start + j)
+    }
+    log(all_)
+    for (let i=0;i<SectionNode.startGrids.length;i++){
+        if (SectionNode.startGrids[i]===null || SectionNode.startGrids[i]===undefined){
+            return true;
+        } else {
+            let j = SectionNode.startGrids[i]
+            while (j < SectionNode.endGrids[i]){
+                if (all_.includes(j)){
+                    return false
+                }
+                j ++;
+            }
+        }
+    }
+    return true
+}
 
 
+
+function getMissing() {
+    let selectedCourses = document.getElementsByClassName("menu__item")
+    let wait = []
+    for (let i=0;i<selectedCourses.length;i++){
+        let childs = selectedCourses[i].childNodes[selectedCourses[i].childNodes.length - 1].childNodes
+        for (let j=0;j<childs.length;j++){
+            if (childs[j].getElementsByClassName("selected_button").length === 0){
+                wait.push(childs[j])
+            }
+        }
+    }
+    return wait
+}
+
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+}
+
+
+function noMorning(selections) {
+    selections.sort((a, b) => {
+        if (a.earlist < b.earlist) return 1;
+        return -1;
+    })
+}
+
+function noNight(selections) {
+    selections.sort((a, b) => {
+        if (a.earlist < b.earlist) return -1;
+        return 1;
+    })
+}
+
+function noFriday(selections) {
+    selections.sort((a, b) => {
+        if (a.day.includes("FR") && !b.day.includes("FR")) {
+            return 1
+        }
+        return -1;
+    })
+}
+
+function openSetting() {
+    if (document.getElementById("generateMethodBox").style.display === "")
+        document.getElementById("generateMethodBox").style.display = "none"
+    else document.getElementById("generateMethodBox").style.display = ""
+
+
+}
 
 
 
 load.then(courses => {
-    load_cookie(courses);
+    // load_cookie(courses);
     autocomplete(document.getElementById("search"), courses);
 });

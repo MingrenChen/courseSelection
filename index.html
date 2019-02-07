@@ -20,7 +20,7 @@
                 </div>
                 <form class="input-group col-md-3" autocomplete="off" id="searchform">
                     <div class="autocomplete" style="width:100%">
-                        <input type="text" id="search" class="form-control" placeholder="请输入字段名"/>
+                        <input type="text" id="search" class="form-control" placeholder="input course code"/>
                     </div>
                 </form>
 
@@ -38,6 +38,18 @@
             <nav class="menu">
                 <a id="credit"> credit: 0 </a>
             </nav>
+            <div>
+                <button type="button" class="btn btn-primary btn-lg" onclick="autoSelect('LATE')">Generate Timetable <img id="setting"  src="setting.png" onclick="openSetting()"></button>
+                <div id="generateMethodBox" style="display: none;">
+                    <span>Timetable Preference </span>
+                    <select class="form-control">
+                        <option value="LATE">Late</option>
+                        <option value="BALANCED">Balanced</option>
+                        <option value="EARLY">Early</option>
+                        <option value="Long Weekend">Long Weekend</option>
+                    </select>
+                </div>
+            </div>
         </sidebar>
     </div>
 </body>
