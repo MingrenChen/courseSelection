@@ -20,7 +20,6 @@ let courses = JSON.parse(courses_raw);
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
-var io = require('socket.io').listen(serv);
 
 app.use(express.static(path.join(__dirname, 'client')));
 app.use('/client', express.static(__dirname + "/client"));
@@ -29,28 +28,26 @@ app.get('/',function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-SOCKET_LIST = {}
-
-io.sockets.on('connection', function(socket) {
-    socket.id = Math.random();
-    SOCKET_LIST[socket.id] = socket;
+app.get('/getautocomplete/:keyword',function(req, res) {
+    let keyword = req.params.keyword
     const course_titles = Object.keys(courses);
-    socket.on('getAutoComplete', function (req) {
-        let arr = []
-        let i = 0
-        while (i<course_titles.length && arr.length<10){
-            if (course_titles[i].substr(0, req.key.length).toUpperCase() === req.key.toUpperCase()) {
-                arr.push(course_titles[i].substring(0,8) + course_titles[i][9] + " " + courses[course_titles[i]].courseTitle)
-            }
-            i++;
+    let arr = []
+    let i = 0
+    while (i<course_titles.length && arr.length<10){
+        if (course_titles[i].substr(0, keyword.length).toUpperCase() === keyword.toUpperCase()) {
+            arr.push(course_titles[i].substring(0,8) + course_titles[i][9] + " " + courses[course_titles[i]].courseTitle)
         }
-        console.log(arr)
-        socket.emit("sendAutoComplete", {res: arr})
+        i++;
+    }
+    res.send(arr)
+});
 
-    });
-
-
+app.get('/course/:courseTitle', function (req, res) {
+    res.send(courses[req.params.courseTitle])
 })
 
-serv.listen(process.env.PORT || 2000);
+
+
+
+serv.listen(process.env.PORT || 8080);
 console.log("Server started.");
