@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" type="text/css" href="./client/index.css">
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+<head>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="wrapper">
+        <main>
+            <div class="toolbar">
+                <div class="toggle">
+                    <div class="toggle__option toggle__option--selected" id="toggle_both" onclick="changeView(this.id)">fall/winter</div>
+                    <div class="toggle__option" id="toggle_fall" onclick="changeView(this.id)">fall</div>
+                    <div class="toggle__option" id="toggle_winter" onclick="changeView(this.id)">winter</div>
+                </div>
+                <form class="input-group col-md-3" autocomplete="off" id="searchform">
+                    <div class="autocomplete" style="width:100%">
+                        <input type="text" id="search" class="form-control" placeholder="input course code"/>
+                    </div>
+                </form>
+
+            </div>
+            <div class="calendar">
+                <div class="calendar__term" id="fall"></div>
+                <div class="calendar__term" id="winter"></div>
+            </div>
+            <div id="floating">
+
+            </div>
+        </main>
+        <sidebar>
+            <div class="logo" onclick="logoclick()">logo</div>
+            <nav class="menu">
+                <a id="credit"> credit: 0 </a>
+            </nav>
+            <div>
+                <button type="button" class="btn btn-primary btn-lg" onclick="autoSelect('LATE')">Generate Timetable <img id="setting"  src="setting.png" onclick="openSetting()"></button>
+                <div id="generateMethodBox" style="display: none;">
+                    <span>Timetable Preference </span>
+                    <img src="close.png" id="boxclose" onclick="openSetting()">
+                    <select class="form-control" id="autoselect-selection">
+                        <option value="LATE">Late</option>
+                        <option value="BALANCED">Balanced</option>
+                        <option value="EARLY">Early</option>
+                        <option value="Long Weekend">Long Weekend</option>
+                    </select>
+                </div>
+            </div>
+        </sidebar>
+    </div>
+</body>
+<script type="application/javascript" src="cookie.js"></script>
+<script type="application/javascript" src="calendar.js"></script>
+<script type="application/javascript" src="index.js"></script>
+<script type="application/javascript" src="autocomplete.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</html>
