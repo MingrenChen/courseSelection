@@ -1,3 +1,4 @@
+"use strict"
 var bodyParser = require('body-parser');
 var request = require('request');
 var http = require('http');
