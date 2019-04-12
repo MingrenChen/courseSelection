@@ -28,8 +28,11 @@ app.get('/',function(req, res) {
 });
 let ips = []
 app.get('/getautocomplete/:keyword',function(req, res) {
-    let ip = req.connection.remoteAddress
-    if (!ips.contains(ip)) {
+    let ip = req.headers['x-forwarded-for'] || 
+     req.connection.remoteAddress || 
+     req.socket.remoteAddress ||
+     (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    if (!ips.includes(ip)) {
         ips.push(ip)
         console.log(ip + " came in")
     }
