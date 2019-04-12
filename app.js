@@ -30,6 +30,8 @@ app.get('/',function(req, res) {
 });
 
 app.get('/getautocomplete/:keyword',function(req, res) {
+    let ip = req.connection.remoteAddress
+    console.log(ip + " came in")
     let keyword = req.params.keyword
     const course_titles = Object.keys(courses);
     let arr = []
