@@ -16,8 +16,6 @@ const fs = require('fs');
 let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
-
-
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
@@ -28,10 +26,13 @@ app.use('/client', express.static(__dirname + "/client"));
 app.get('/',function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
-
+let ips = []
 app.get('/getautocomplete/:keyword',function(req, res) {
     let ip = req.connection.remoteAddress
-    console.log(ip + " came in")
+    if (!ips.contains(ip)) {
+        ips.push(ip)
+        console.log(ip + " came in")
+    }
     let keyword = req.params.keyword
     const course_titles = Object.keys(courses);
     let arr = []
