@@ -250,8 +250,6 @@ function selectSection(id) {
                 selectedList[id.split("|")[0]][id] = {schedule: course['meetings'][id.split("|")[1]]['schedule']};
                 selectedList[id.split("|")[0]][id].sectionType = course["section"];
                 cookie__add_section(id, course['meetings'][id.split("|")[1]]['schedule'], course["section"])
-                // extend(id.split("|")[0]);
-                // update_cookie()
             }
         }
         xhttp.open("GET", "course/" + id.split("|")[0], true);
