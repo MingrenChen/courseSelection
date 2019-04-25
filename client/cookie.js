@@ -15,7 +15,10 @@ function update_cookie() {
 function cookie__add_course(courseTitle) {
     let selectedCourses = {}
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
+        let current_cookie = document.cookie.split(";").pop()
+        console.log(current_cookie)
+
+        selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
     }
     selectedCourses[courseTitle] = {}
     const d = new Date();
@@ -28,8 +31,11 @@ function cookie__add_course(courseTitle) {
 
 function cookie__remove_course(courseTitle) {
     let selectedCourses = {}
+
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
+        let current_cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
+
+        selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
         delete selectedCourses[courseTitle.slice(6)]
         const d = new Date();
         d.setTime(d.getTime() + (5*365*24*60*60*1000));
@@ -42,8 +48,10 @@ function cookie__remove_course(courseTitle) {
 
 function cookie__add_section(sectionID, schedule, type) {
     let selectedCourses = {}
+    let current_cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
+
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
+        selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
     }
     const courseTitle = sectionID.split("|")[0]
     selectedCourses[courseTitle][sectionID] = {}
@@ -58,8 +66,10 @@ function cookie__add_section(sectionID, schedule, type) {
 
 function cookie__delete_section(sectionID) {
     let selectedCourses = {}
+    let current_cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
+
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
+        selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
     }
     const courseTitle = sectionID.split("|")[0]
     delete selectedCourses[courseTitle][sectionID]
@@ -88,8 +98,9 @@ function show_cookie() {
 
 function load_cookie() {
     let selectedCourses = {}
+    let current_cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split(";")[document.cookie.split(";").length - 1].split("&")[0].split("=")[1]);
+        selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
     }
     Object.keys(selectedCourses).forEach(courseID => {
         addToCart(courseID.slice(0, 8) + courseID[9] + " ")
