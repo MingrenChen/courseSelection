@@ -88,9 +88,8 @@ function show_cookie() {
 
 function load_cookie() {
     let selectedCourses = {}
-    document.cookie = document.cookie.split(";")[document.cookie.split(";").length - 1]
     if (document.cookie){
-        selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);
+        selectedCourses = JSON.parse(document.cookie.split(";")[document.cookie.split(";").length - 1].split("&")[0].split("=")[1]);
     }
     Object.keys(selectedCourses).forEach(courseID => {
         addToCart(courseID.slice(0, 8) + courseID[9] + " ")
