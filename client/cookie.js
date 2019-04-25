@@ -77,13 +77,16 @@ function remove_cookie() {
     document.cookie = "courses" + "={}"  + ";" + expires + ";path=/";
 }
 
+function cookie__add_block(id) {
+    
+}
+
 function show_cookie() {
     console.log(JSON.parse(document.cookie.split("&")[0].split("=")[1]))
 }
 
 
 function load_cookie() {
-
     let selectedCourses = {}
     if (document.cookie){
         selectedCourses = JSON.parse(document.cookie.split("&")[0].split("=")[1]);

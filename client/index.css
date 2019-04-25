@@ -39,6 +39,13 @@ sidebar {
     align-items: center;
     justify-content: center;
 }
+
+.telogo {
+    width: 100px;
+    left: 30px;
+    position: fixed;
+}
+
 .copyright {
     text-align: center;
 }
@@ -118,13 +125,18 @@ img{
     height: 20px!important;
 }
 
+.credit {
+    padding-left: 10px;
+    position: fixed;
+}
+
 @media screen and (min-width: 850px) {
     sidebar {
         grid-template-areas: "logo"
         "menu"
         "button";
         grid-template-columns: 1fr;
-        grid-template-rows: 50px 85% 70px;
+        grid-template-rows: 100px 76% 70px;
         height: -webkit-fill-available;
     }
 
@@ -308,6 +320,8 @@ p{
         box-shadow: inset 10px 0px 17px -13px var(--red);
     }
 }
+
+
 
 .autocomplete {
     z-index: 1000;

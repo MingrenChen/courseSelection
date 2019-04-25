@@ -21,7 +21,6 @@ const blockTime = function (id) {
     } else {
         timeSlot.classList.add("blocked-timeslot");
         blocked.push(timeSlot.id)
-
     }
     update_cookie()
 };
@@ -256,6 +255,7 @@ function selectSection(id) {
         xhttp.send();
     }
 }
+
 
 function addGraphForOneSection(sectionInfo, id) {
     for (let i=0;i<Object.values(sectionInfo.schedule).length;i++){
