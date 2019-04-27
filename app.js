@@ -18,16 +18,17 @@ let courses = JSON.parse(courses_raw);
 
 var express = require('express');
 var app = express();
+
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+
+
 var serv = require('http').Server(app);
 
 
-app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header('Access-Control-Allow-Methods', 'POST, GET');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
 
 app.use(express.static(path.join(__dirname, 'client')));
 app.use('/client', express.static(__dirname + "/client"));
