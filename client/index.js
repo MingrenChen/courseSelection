@@ -39,8 +39,7 @@ function addToCart(course) {
     } else {
         // lecture, tutorial, practice selection area named ltp
         var xhttp = new XMLHttpRequest();
-        xhttp.setRequestHeader("Content-Type", "application/xml")
-        xhttp.setRequestHeader("x-requested-with", "xmlhttprequest")
+
         xhttp.onreadystatechange = function(){
             if (this.readyState == 4 && this.status == 200) {
                 let cartItem = document.createElement("a");
@@ -69,6 +68,8 @@ function addToCart(course) {
             }
         }
         xhttp.open("GET", "www.mingren.life:8080/course/" + id_, false);
+        xhttp.setRequestHeader("Content-Type", "application/xml")
+        xhttp.setRequestHeader("x-requested-with", "xmlhttprequest")
         xhttp.send();
     }
 }
