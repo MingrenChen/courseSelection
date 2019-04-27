@@ -20,13 +20,22 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-app.use(express.static(path.join(__dirname, 'client')));
-app.use('/client', express.static(__dirname + "/client"));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+});
+
 app.all('/', function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
+
+app.use(express.static(path.join(__dirname, 'client')));
+app.use('/client', express.static(__dirname + "/client"));
+
 
 
 app.get('/',function(req, res) {
@@ -57,7 +66,7 @@ app.get('/getautocomplete/:keyword',function(req, res) {
     res.send(arr)
 });
 
-app.post('/course/:courseTitle', function (req, res) {
+app.get('/course/:courseTitle', function (req, res) {
     res.send(courses[req.params.courseTitle])
 })
 
