@@ -57,7 +57,7 @@ app.get('/getautocomplete/:keyword',function(req, res) {
     res.send(arr)
 });
 
-app.get('/course/:courseTitle', function (req, res) {
+app.post('/course/:courseTitle', function (req, res) {
     res.send(courses[req.params.courseTitle])
 })
 
