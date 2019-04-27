@@ -68,8 +68,7 @@ function addToCart(course) {
             }
         }
         xhttp.open("GET", "www.mingren.life:8080/course/" + id_, false);
-        xhttp.setRequestHeader("Content-Type", "application/xml")
-        xhttp.setRequestHeader("x-requested-with", "xmlhttprequest")
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
         xhttp.send();
     }
 }
