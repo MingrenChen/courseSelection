@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>Title</title>
+    <script>
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onsuccess = function(){
+            console.log(this)
+        }
+        xhttp.open("GET", "www.mingren.life:2000/api", false);
+        xhttp.setRequestHeader('Access-Control-Allow-Origin', 'http://localhost:63342')
+        xhttp.send();
+
+    </script>
 </head>
 <body>
-$END$
+
 </body>
 </html>
