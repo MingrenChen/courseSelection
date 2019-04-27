@@ -22,11 +22,27 @@ var serv = require('http').Server(app);
 
 app.use(express.static(path.join(__dirname, 'client')));
 app.use('/client', express.static(__dirname + "/client"));
+app.use((req, res, next) => {
+    const corsWhitelist = [
+        "http://localhost:8080",
+        'https://domain2.example',
+        'https://domain3.example'
+    ];
+    if (corsWhitelist.indexOf(req.headers.origin) !== -1) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    }
+
+    next();
+});
+
 
 app.get('/',function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 let ips = []
+
+
 app.get('/getautocomplete/:keyword',function(req, res) {
     let ip = req.headers['x-forwarded-for'] || 
      req.connection.remoteAddress || 
