@@ -66,7 +66,7 @@ function addToCart(course) {
                 cookie__add_course(id_)
             }
         }
-        xhttp.open("GET", "course/" + id_, false);
+        xhttp.open("GET", "www.mingren.life:8080/course/" + id_, false);
         xhttp.send();
     }
 }
@@ -505,7 +505,6 @@ function removeFromArray(arr, element, id) {
 
 
 function refreshButton(buttons) {
-
     // for each button
     for (let i=0;i<buttons.length;i++){
         // will the section of this button represent cause conflict?
@@ -780,8 +779,6 @@ function openSetting() {
     if (document.getElementById("generateMethodBox").style.display === "")
         document.getElementById("generateMethodBox").style.display = "none"
     else document.getElementById("generateMethodBox").style.display = ""
-
-
 }
 
 

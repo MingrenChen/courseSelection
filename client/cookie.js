@@ -16,8 +16,6 @@ function cookie__add_course(courseTitle) {
     let selectedCourses = {}
     if (document.cookie){
         let current_cookie = document.cookie.split(";").pop()
-        console.log(current_cookie)
-
         selectedCourses = JSON.parse(current_cookie.split("&")[0].split("=")[1]);
     }
     selectedCourses[courseTitle] = {}
