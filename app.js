@@ -29,10 +29,6 @@ app.all('*', function(req, res, next) {
 
 
 
-var serv = require('http').Server(app);
-
-
-
 app.use(express.static(path.join(__dirname, 'client')));
 app.use('/client', express.static(__dirname + "/client"));
 
@@ -77,5 +73,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-serv.listen(process.env.PORT || 2000);
+app.listen(process.env.PORT || 2000);
 console.log("Server started.");
