@@ -27,6 +27,8 @@ app.all('*', function(req, res, next) {
 });
 
 
+
+
 var serv = require('http').Server(app);
 
 
@@ -35,7 +37,9 @@ app.use(express.static(path.join(__dirname, 'client')));
 app.use('/client', express.static(__dirname + "/client"));
 
 
-
+app.get("/api", function (req, res) {
+    res.send({1:2})
+})
 app.get('/',function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
