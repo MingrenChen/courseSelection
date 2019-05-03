@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        $.ajax({
+            url: 'http://www.mingren.life:2000/api',
+            headers: {  'Access-Control-Allow-Origin': '*' },
+            data: 123,
+            type: 'get',
+            /* etc */
+            success: function(jsondata){
+                console.log(jsondata)
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log("ahasdfasdfaha")
+            }
+        })
+        console.log("ahaha")
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>

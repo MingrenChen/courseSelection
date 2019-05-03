@@ -1,6 +1,7 @@
 "use strict";
 
 var selectedList = {};
+var courses = {}
 let blocked = [];
 var occupied = [];
 
@@ -44,6 +45,7 @@ function addToCart(course) {
             if (this.readyState == 4 && this.status == 200) {
                 let cartItem = document.createElement("a");
                 let course_content = JSON.parse(this.responseText);
+                courses[id_] = course_content;
                 let pre = course_content.prerequisite===""?"":"<span class='req'><br />preqequisite:"+course_content.prerequisite+"</span>";
                 let cor = course_content.corequisite===""?"":"<span class='req'><br />corequisite:"+course_content.corequisite+"</span>";
                 let exc = course_content.exclusion===""?"":"<span class='req'><br />exclusion:"+course_content.exclusion+"</span>";
@@ -67,7 +69,7 @@ function addToCart(course) {
                 cookie__add_course(id_)
             }
         }
-        xhttp.open("GET", "course/" + id_, false);
+        xhttp.open("GET", "http://www.mingren.life:2000/course/" + id_, false);
         xhttp.setRequestHeader("Content-Type", "application/json")
         xhttp.send();
     }
@@ -224,37 +226,31 @@ function selectSection(id) {
         cookie__delete_section(id)
 
     } else {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200) {
-                let course = JSON.parse(this.responseText)
-                coursebutton.classList.add("selected_button");
-                if ("Y" === course["section"]) {
-                    let fall = JSON.parse(JSON.stringify({schedule: course['meetings'][id.split("|")[1]]['schedule']}));
-                    let winter = JSON.parse(JSON.stringify({schedule: course['meetings'][id.split("|")[1]]['schedule']}));
-                    fall.sectionType = "F";
-                    winter.sectionType = "S";
-                    Object.keys(fall.schedule).forEach(element => {
-                        fall.schedule[element + "|F"] = fall.schedule[element];
-                        winter.schedule[element + "|S"] = winter.schedule[element];
-                        delete winter.schedule[element];
-                        delete fall.schedule[element];
-                    });
-                    selectedList[id.split("|")[0]][id] = fall.sectionType;
-                    addGraphForOneSection(fall, id);
-                    addGraphForOneSection(winter, id)
-                } else {
-                    let section = {schedule: course['meetings'][id.split("|")[1]]['schedule']};
-                    section.sectionType = course["section"];
-                    addGraphForOneSection(section, id)
-                }
-                selectedList[id.split("|")[0]][id] = {schedule: course['meetings'][id.split("|")[1]]['schedule']};
-                selectedList[id.split("|")[0]][id].sectionType = course["section"];
-                cookie__add_section(id, course['meetings'][id.split("|")[1]]['schedule'], course["section"])
-            }
+
+        let course = courses[id.split("|")[0]]
+        coursebutton.classList.add("selected_button");
+        if ("Y" === course["section"]) {
+            let fall = JSON.parse(JSON.stringify({schedule: course['meetings'][id.split("|")[1]]['schedule']}));
+            let winter = JSON.parse(JSON.stringify({schedule: course['meetings'][id.split("|")[1]]['schedule']}));
+            fall.sectionType = "F";
+            winter.sectionType = "S";
+            Object.keys(fall.schedule).forEach(element => {
+                fall.schedule[element + "|F"] = fall.schedule[element];
+                winter.schedule[element + "|S"] = winter.schedule[element];
+                delete winter.schedule[element];
+                delete fall.schedule[element];
+            });
+            selectedList[id.split("|")[0]][id] = fall.sectionType;
+            addGraphForOneSection(fall, id);
+            addGraphForOneSection(winter, id)
+        } else {
+            let section = {schedule: course['meetings'][id.split("|")[1]]['schedule']};
+            section.sectionType = course["section"];
+            addGraphForOneSection(section, id)
         }
-        xhttp.open("GET", "course/" + id.split("|")[0], true);
-        xhttp.send();
+        selectedList[id.split("|")[0]][id] = {schedule: course['meetings'][id.split("|")[1]]['schedule']};
+        selectedList[id.split("|")[0]][id].sectionType = course["section"];
+        cookie__add_section(id, course['meetings'][id.split("|")[1]]['schedule'], course["section"])
     }
 }
 
@@ -402,23 +398,17 @@ function disableBlockClick(start, duration) {
 
 // TODO 什么几把问题
 function enableBlockClick(id) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function(){
-        if (this.readyState == 4 && this.status == 200) {
-            let courseInfo = JSON.parse(this.responseText)
-            let courseTime = courseInfo["meetings"][id.split("|")[1]]["schedule"];
-            let sectionType = courseInfo["section"];
-            Object.keys(courseTime).forEach(sectionCode => {
-                let endGrid = getGridIdByDayTime(courseTime[sectionCode]["meetingDay"], courseTime[sectionCode]["meetingEndTime"], sectionType);
-                let startGrid = getGridIdByDayTime(courseTime[sectionCode]["meetingDay"], courseTime[sectionCode]["meetingStartTime"], sectionType);
-                let duration = (endGrid - startGrid);
-                for (let i=0;i<duration;i++) document.getElementById(startGrid + i).setAttribute("onclick", "blockTime(this.id)");
 
-            })
-        }
-    }
-    xhttp.open("GET", "course/" + id.split("|")[0], true);
-    xhttp.send();
+    let courseInfo = courses[id.split("|")[0]]
+    let courseTime = courseInfo["meetings"][id.split("|")[1]]["schedule"];
+    let sectionType = courseInfo["section"];
+    Object.keys(courseTime).forEach(sectionCode => {
+        let endGrid = getGridIdByDayTime(courseTime[sectionCode]["meetingDay"], courseTime[sectionCode]["meetingEndTime"], sectionType);
+        let startGrid = getGridIdByDayTime(courseTime[sectionCode]["meetingDay"], courseTime[sectionCode]["meetingStartTime"], sectionType);
+        let duration = (endGrid - startGrid);
+        for (let i=0;i<duration;i++) document.getElementById(startGrid + i).setAttribute("onclick", "blockTime(this.id)");
+
+    })
 }
 
 function graphMouseOver(className) {
@@ -513,46 +503,41 @@ function refreshButton(buttons) {
         // 1 - GET THE SECTION MEETING TIME
         let section = buttons[i].id;
         let courseID = section.split("|")[0];
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                let courseInfo = JSON.parse(this.responseText)
-                let sectionType = courseInfo.section;
-                let meetings = courseInfo.meetings[section.split("|")[1]].schedule;
-                // for each meeting, check which time slot been used
-                Object.keys(meetings).forEach(meeting => {
-                    let meetingScedule = meetings[meeting];
-                    let startGrid = getGridIdByDayTime(meetingScedule['meetingDay'], meetingScedule['meetingStartTime'], sectionType);
-                    let endGrid = getGridIdByDayTime(meetingScedule['meetingDay'], meetingScedule['meetingEndTime'], sectionType);
-                    let duration = (endGrid - startGrid);
-                    // check if has conflict
-                    let occupiedArr = occupied.map(element => {
-                        return parseInt(Object.keys(element)[0])
-                    });
-                    for (let k = 0; k < duration; k++) {
-                        if (occupiedArr.includes(startGrid + k) &&
-                            occupied[occupiedArr.indexOf(startGrid + k)][startGrid + k] !== section) {
-                            if (document.getElementById(section).classList.contains("selected_button"))
-                                document.getElementById(section).classList.add("selected_conflict_button")
-                            document.getElementById(section).classList.add("conflict_button")
+        log(courseID)
+        log(courses)
+        let courseInfo = courses[courseID]
+        let sectionType = courseInfo.section;
+        let meetings = courseInfo.meetings[section.split("|")[1]].schedule;
+        // for each meeting, check which time slot been used
+        Object.keys(meetings).forEach(meeting => {
+            let meetingScedule = meetings[meeting];
+            let startGrid = getGridIdByDayTime(meetingScedule['meetingDay'], meetingScedule['meetingStartTime'], sectionType);
+            let endGrid = getGridIdByDayTime(meetingScedule['meetingDay'], meetingScedule['meetingEndTime'], sectionType);
+            let duration = (endGrid - startGrid);
+            // check if has conflict
+            let occupiedArr = occupied.map(element => {
+                return parseInt(Object.keys(element)[0])
+            });
+            for (let k = 0; k < duration; k++) {
+                if (occupiedArr.includes(startGrid + k) &&
+                    occupied[occupiedArr.indexOf(startGrid + k)][startGrid + k] !== section) {
+                    if (document.getElementById(section).classList.contains("selected_button"))
+                        document.getElementById(section).classList.add("selected_conflict_button")
+                    document.getElementById(section).classList.add("conflict_button")
 
-                        }
-                    }
-                    if (sectionType === "S") {
-                        for (let k = 0; k < duration; k++) {
-                            if (occupiedArr.includes(startGrid + k + 130) &&
-                                occupied[occupiedArr.indexOf(130 + startGrid + k)][130 + startGrid + k] !== section) {
-                                if (document.getElementById(section).classList.contains("selected_button"))
-                                    document.getElementById(section).classList.add("selected_conflict_button")
-                                document.getElementById(section).classList.add("conflict_button")
-                            }
-                        }
-                    }
-                })
+                }
             }
-        }
-        xhttp.open("GET", "course/" + courseID, true);
-        xhttp.send();
+            if (sectionType === "S") {
+                for (let k = 0; k < duration; k++) {
+                    if (occupiedArr.includes(startGrid + k + 130) &&
+                        occupied[occupiedArr.indexOf(130 + startGrid + k)][130 + startGrid + k] !== section) {
+                        if (document.getElementById(section).classList.contains("selected_button"))
+                            document.getElementById(section).classList.add("selected_conflict_button")
+                        document.getElementById(section).classList.add("conflict_button")
+                    }
+                }
+            }
+        })
     }
 }
 
