@@ -19,14 +19,11 @@ let courses = JSON.parse(courses_raw);
 var express = require('express');
 var app = express();
 
-// app.all('*', function(req, res, next) {
-//     res.header('Access-Control-Allow-Origin', '*');
-//     res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-//     res.header('Access-Control-Allow-Headers', 'Content-Type');
-//     next();
-// });
-
-
+app.all('*', function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+});
 
 
 app.use(express.static(path.join(__dirname, 'client')));
@@ -73,5 +70,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 2000);
 console.log("Server started.");
