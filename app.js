@@ -3,6 +3,9 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var http = require('http');
 var path = require('path')
+var cors = require('cors')
+const fs = require('fs');
+
 function jsonParse() {
     var parse = bodyParser.json();
     return function (req, res, next) {
@@ -11,8 +14,7 @@ function jsonParse() {
     }
 }
 
-const fs = require('fs');
-
+app.use(cors())
 let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
@@ -22,7 +24,8 @@ var app = express();
 app.all('*', function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, authorization, x-http-method-override');
+
     next()
 });
 
