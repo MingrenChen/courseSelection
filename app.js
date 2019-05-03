@@ -35,7 +35,6 @@ app.use('/client', express.static(__dirname + "/client"));
 
 
 app.get("/api", function (req, res) {
-    console.log("comming!!")
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.send({1:2})
@@ -70,6 +69,7 @@ app.get('/getautocomplete/:keyword',function(req, res) {
 });
 
 app.get('/course/:courseTitle', function (req, res) {
+    console.log("ask for course " + req.params.courseTitle)
     res.send(courses[req.params.courseTitle])
 })
 
