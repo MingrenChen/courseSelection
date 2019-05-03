@@ -14,12 +14,12 @@ function jsonParse() {
     }
 }
 
-app.use(cors())
 let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
 var express = require('express');
 var app = express();
+app.use(cors())
 
 app.all('*', function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
