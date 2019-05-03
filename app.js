@@ -23,6 +23,7 @@ app.all('*', function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next()
 });
 
 
@@ -73,4 +74,4 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 app.listen(process.env.PORT || 2000);
-console.log("Server started.");
+console.log("Server started at " + process.env.PORT);
