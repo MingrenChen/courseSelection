@@ -663,15 +663,8 @@ function autoSelect() {
     missing_sections.forEach(section => {
         let selections = []
         let sections = section.getElementsByClassName("coursebutton")
-        var xhttp = new XMLHttpRequest();
-        let course = {}
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                course = JSON.parse(this.responseText)
-            }
-        }
-        xhttp.open("GET", "course/" + sections[0].id.split("|")[0], false);
-        xhttp.send();
+        let course = courses[sections[0].id.split("|")[0]]
+
         for (let i = 0; i < sections.length; i++) {
             selections.push(new SectionNode(course.
                 meetings[sections[i].id.split("|")[1]].schedule, course.section, sections[i].id))
