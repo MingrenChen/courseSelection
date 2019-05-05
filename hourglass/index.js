@@ -113,7 +113,9 @@ function changeView(id) {
         document.getElementById("winter").style.width = "49.7%"
     }
 }
-
+if (window.outerWidth < 600){
+    changeView("toggle_fall")
+}
 
 function disableAll() {
     let selected_courses = document.getElementsByClassName("menu__item");

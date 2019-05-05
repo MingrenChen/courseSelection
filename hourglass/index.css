@@ -14,16 +14,7 @@
     /*}*/
 /*}*/
 
-@media only screen and(max-width: 500px){
-    .wrapper {
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-areas: "content";
-        width: 0; /* unnecessary, but let's keep things consistent */
-        height: 0;
-    }
 
-}
 
 
 
@@ -47,6 +38,24 @@ sidebar {
     background-color: white;
     box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.2);
 }
+
+@media only screen and (max-device-width: 600px)  {
+    .wrapper {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "content";
+    }
+    
+    sidebar{
+        display: none;
+    }
+
+    main{
+        height: 100%;
+    }
+
+}
+
 .logo {
     grid-area: logo;
     display: flex;
@@ -182,11 +191,13 @@ i {
 .calendar{
     background-color: white;
     border: 1px solid #e1e1e1;
+    grid-template-rows: repeat(27, 1fr);
+
 }
 
 .calendar__week {
     display: grid;
-    grid-template-columns: 13% repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     grid-auto-rows: 25px;
     text-align: -webkit-center;
     line-height: 100%;
@@ -205,11 +216,24 @@ i {
 }
 
 .calendar__term {
+    height: 100%;
     width: 49.7%;
     display: inline-block;
 }
 
+@media screen and (max-device-width: 600px){
+    .calendar {
+        height: 1620px;
+    }
 
+    .calendar__week{
+        grid-auto-rows: 60px;
+    }
+    .calendar__day{
+        font-size: x-large;
+    }
+
+}
 
 
 /* COSMETIC STYLING */
@@ -487,4 +511,5 @@ p{
     font-weight: 500;
     box-shadow: 1px 2px 30px -5px var(--red);
 }
+
 
