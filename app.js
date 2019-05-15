@@ -5,6 +5,7 @@ var https = require('https');
 var path = require('path')
 var cors = require('cors')
 const fs = require('fs');
+const crypto = require("crypto")
 
 var privateKey = fs.readFileSync('privatekey.pem').toString();
 var certificate = fs.readFileSync('certificate.pem').toString();
