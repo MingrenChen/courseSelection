@@ -1,7 +1,7 @@
 "use strict"
 var bodyParser = require('body-parser');
 var request = require('request');
-var http = require('http');
+var https = require('https');
 var path = require('path')
 var cors = require('cors')
 const fs = require('fs');
@@ -23,7 +23,8 @@ let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
 var express = require('express');
-var app = express.createServer(credentials);
+var app = express();
+var httpsServer = https.createServer(credentials, app);
 app.use(cors())
 
 app.all('*', function(req, res, next) {
@@ -81,5 +82,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-app.listen(process.env.PORT || 2000);
+httpsServer.listen(2000);
 console.log("Server started at " + process.env.PORT);
