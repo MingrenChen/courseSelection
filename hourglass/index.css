@@ -39,22 +39,7 @@ sidebar {
     box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.2);
 }
 
-@media only screen and (max-device-width: 600px)  {
-    .wrapper {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    grid-template-areas: "content";
-    }
-    
-    sidebar{
-        display: none;
-    }
 
-    main{
-        height: 100%;
-    }
-
-}
 
 .logo {
     grid-area: logo;
@@ -189,7 +174,11 @@ i {
     margin-bottom: 10px;
 }
 .calendar{
-    background-color: white;
+    background-image: url("background.jpg");
+    background-position: center;
+
+    background-size: auto 100%;
+    background-repeat: no-repeat;
     border: 1px solid #e1e1e1;
     grid-template-rows: repeat(27, 1fr);
 
@@ -220,21 +209,6 @@ i {
     width: 49.7%;
     display: inline-block;
 }
-
-@media screen and (max-device-width: 600px){
-    .calendar {
-        height: 1620px;
-    }
-
-    .calendar__week{
-        grid-auto-rows: 60px;
-    }
-    .calendar__day{
-        font-size: x-large;
-    }
-
-}
-
 
 /* COSMETIC STYLING */
 
@@ -448,6 +422,86 @@ p{
     border-color: #ED5454 !important;
     color: #ED5454 !important;
 }
+
+
+
+@media only screen and (max-device-width: 600px)  {
+    .wrapper {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        grid-template-areas: "content";
+    }
+
+    sidebar{
+        display: none;
+    }
+
+    main {
+        height: 100%;
+        overflow: hidden;
+        margin: 1px;
+        padding-top: 20px;
+    }
+    #searchform {
+        right: 5px;
+    }
+
+    #phone_cart {
+        position: absolute;
+        padding: 10px;
+        border: 10px;
+        font-size: x-large;
+        background: antiquewhite;
+    }
+    .tutorial, .lecture, .practice {
+        width: auto
+    }
+    .coursebutton {
+        height: 30px;
+    }
+
+    #search{
+        height: 60px;
+        font-size: xx-large;
+    }
+
+    #searchautocomplete-list{
+        height: -webkit-fill-available;
+
+    }
+    #searchautocomplete-list div {
+        padding: auto;
+        height: 100px;
+        font-size:x-large;
+    }
+
+    .calendar {
+        height: 1620px;
+        margin-top: 30px;
+        background-size: 100% auto;
+        background-repeat: no-repeat;
+    }
+
+    .calendar__week{
+        grid-auto-rows: 60px;
+    }
+    .calendar__day{
+        font-size: x-large;
+        /*padding-top: 20px;*/
+    }
+
+    .close {
+        width: 60px !important;
+    }
+    i {
+        right: 15px !important;
+	    position: absolute;
+    }
+
+}
+
+
+
 /*--------------------------------------------------------------------*/
 .copyright {
     font-size: 0.7rem;
@@ -455,7 +509,8 @@ p{
 }
 
 .calendar {
-    background-color: white;
+
+    /*background-color: white;*/
     border: 1px solid #e1e1e1;
 }
 

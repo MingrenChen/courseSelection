@@ -6,6 +6,11 @@ var path = require('path')
 var cors = require('cors')
 const fs = require('fs');
 
+var privateKey = fs.readFileSync('privatekey.pem').toString();
+var certificate = fs.readFileSync('certificate.pem').toString();
+
+var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
+
 function jsonParse() {
     var parse = bodyParser.json();
     return function (req, res, next) {
@@ -18,7 +23,7 @@ let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
 var express = require('express');
-var app = express();
+var app = express.createServer(credentials);
 app.use(cors())
 
 app.all('*', function(req, res, next) {

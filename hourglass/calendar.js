@@ -6,7 +6,6 @@ const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 var debug = 0;
 const log = debug ? console.log : function () {};
 
-
 let count_id = 130;
 for (let k=0; k<2; k++) {
     if (k===1) count_id+=104;

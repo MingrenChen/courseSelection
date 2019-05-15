@@ -10,8 +10,9 @@ var credit = 0;
 var cursor = 0;
 var color = ["#EAE9A5", "#BFF8C2", "#BFF8F8", "#D5AEF9", "#FAC1A0"]
 var color_border = ["#EFEC32", "#32EF3A", "#44FBFB", "#9C37F5", "#F57C37"]
-
+var phone = 0
 var egg = 0;
+var current_mobile_show = ""
 // ============================== this is for calender display  ==============================
 
 const blockTime = function (id) {
@@ -25,6 +26,39 @@ const blockTime = function (id) {
     }
     update_cookie()
 };
+
+function changeView(id) {
+    document.getElementsByClassName("toggle__option--selected")[0].classList.remove("toggle__option--selected")
+    document.getElementById(id).classList.add("toggle__option--selected")
+    if (id === "toggle_winter"){
+        document.getElementById("fall").style.display = "none"
+        document.getElementById("winter").style.width = "100%"
+        document.getElementById("winter").style.display = "block"
+
+    } else if (id === "toggle_fall"){
+        document.getElementById("winter").style.display = "none"
+        document.getElementById("fall").style.width = "100%"
+        document.getElementById("fall").style.display = "block"
+
+    } else {
+        document.getElementById("winter").style.display = "inline-block"
+        document.getElementById("fall").style.display = "inline-block"
+
+        document.getElementById("fall").style.width = "49.7%"
+        document.getElementById("winter").style.width = "49.7%"
+    }
+}
+
+
+if (window.outerWidth < 600){
+    console.log("phone view")
+    phone = 1
+    let b = document.querySelector("#searchform").classList
+    b.remove("col-md-3")
+    b.add("col-md-6")
+    changeView("toggle_fall")
+
+}
 
 // ============================== this is for add to enrol cart ==============================
 
@@ -69,11 +103,12 @@ function addToCart(course) {
                 cookie__add_course(id_)
             }
         }
-        xhttp.open("GET", "http://www.mingren.life:2000/course/" + id_, false);
+        xhttp.open("GET", "https://www.mingren.life:2000/course/" + id_, false);
         xhttp.setRequestHeader("Content-Type", "application/json")
         xhttp.send();
     }
 }
+
 
 const showText = function (timeSlot) {
     if (timeSlot.innerHTML) return;
@@ -89,33 +124,6 @@ const hideText = function (timeSlot) {
     })
 };
 
-
-
-
-function changeView(id) {
-    document.getElementsByClassName("toggle__option--selected")[0].classList.remove("toggle__option--selected")
-    document.getElementById(id).classList.add("toggle__option--selected")
-    if (id === "toggle_winter"){
-        document.getElementById("fall").hidden = true
-        document.getElementById("winter").style.width = "100%"
-        document.getElementById("winter").hidden = false
-
-    } else if (id === "toggle_fall"){
-        document.getElementById("winter").hidden = true
-        document.getElementById("fall").style.width = "100%"
-        document.getElementById("fall").hidden = false
-
-    } else {
-        document.getElementById("winter").hidden = false
-        document.getElementById("fall").hidden = false
-
-        document.getElementById("fall").style.width = "49.7%"
-        document.getElementById("winter").style.width = "49.7%"
-    }
-}
-if (window.outerWidth < 600){
-    changeView("toggle_fall")
-}
 
 function disableAll() {
     let selected_courses = document.getElementsByClassName("menu__item");
@@ -138,8 +146,45 @@ function extend(id) {
         document.querySelector("#"+id).childNodes[i].style.display = '';
     }
     let buttons = document.querySelector("#"+id).getElementsByClassName("coursebutton");
+
     removeAllConflictButton();
     refreshButton(buttons)
+    if (phone){
+
+        let panel = document.getElementById("phone_cart")
+        panel.style.display = "block"
+        panel.style.zIndex = 10000000
+        // panel.style.background = 'white'
+        panel.style.width = window.innerWidth/1.5 + "px"
+        panel.style.left = window.innerWidth/8 + "px"
+        panel.style.top = window.innerWidth/5 + "px"
+        let html = document.querySelector("#"+id).innerHTML;
+        current_mobile_show = document.querySelector("#"+id).id;
+        document.querySelector("#"+id).parentNode.removeChild(document.querySelector("#"+id))
+        panel.innerHTML = html
+        let sec = document.querySelector("#phone_cart > div")
+        for (let i=0; i<panel.children.length;i++){
+            let but = panel.children[i]
+            but.style['font-size'] = 'x-large'
+        }
+        for (let i=0; i<sec.children.length;i++){
+            let but = sec.children[i]
+            but.style['font-size'] = 'large'
+            for (let j=0; j<but.children.length;j++){
+                // console.log(but[j])
+                but.children[j].style['font-size'] = 'large'
+            }
+        }
+        document.querySelector(".close").onclick = function () {
+            let cartItem = document.createElement("a");
+            cartItem.setAttribute('onclick', 'extend(this.id)');
+            cartItem.id = current_mobile_show;
+            cartItem.classList.add("menu__item");
+            document.querySelector("body > div > sidebar > nav").appendChild(cartItem);
+            cartItem.innerHTML = this.parentNode.parentNode.innerHTML
+            this.parentNode.parentNode.outerHTML = "<div id=\"phone_cart\" style='display: none;'></div>"
+        }
+    }
 }
 
 
@@ -226,9 +271,7 @@ function selectSection(id) {
         coursebutton.classList.remove("selected_button");
         removeGraphForOneSection(id)
         cookie__delete_section(id)
-
     } else {
-
         let course = courses[id.split("|")[0]]
         coursebutton.classList.add("selected_button");
         if ("Y" === course["section"]) {
@@ -254,10 +297,15 @@ function selectSection(id) {
         selectedList[id.split("|")[0]][id].sectionType = course["section"];
         cookie__add_section(id, course['meetings'][id.split("|")[1]]['schedule'], course["section"])
     }
+    let buttons = document.getElementById(id).parentNode.parentNode.getElementsByClassName("coursebutton")
+    refreshButton(buttons)
+
 }
 
 
 function addGraphForOneSection(sectionInfo, id) {
+    let grid_height = document.getElementById("1").offsetHeight
+    if (grid_height === 0) grid_height =  document.getElementById("131").offsetHeight;
     for (let i=0;i<Object.values(sectionInfo.schedule).length;i++){
         let schedule = Object.values(sectionInfo.schedule)[i];
         let startGrid = getGridIdByDayTime(schedule.meetingDay, schedule.meetingStartTime, sectionInfo.sectionType);
@@ -266,12 +314,13 @@ function addGraphForOneSection(sectionInfo, id) {
         if (startGrid === null || startGrid===undefined){
             return;
         }
+
         let floating = document.createElement("div");
         let grid = document.getElementById(startGrid);
         floating.classList.add("courseGraph");
         floating.classList.add(id);
         floating.id = id + "|" + Object.keys(sectionInfo.schedule)[i];
-        floating.style.height = duration * grid.offsetHeight + "px";
+        floating.style.height = duration * grid_height + "px";
         floating.innerHTML =
             "<span style='color: indigo;padding: 5px'>" + id.slice(0,6) + "</span>" +
             "<span style='color: indigo;font-size: smaller;'>" + id.split("|")[1] + "</span>" +
@@ -341,13 +390,15 @@ function handleConflictGraphGroup(start, end, id) {
     }
 }
 
-
 function getConflict(start, end) {
     let exist = document.getElementsByClassName("courseGraph");
     let conflict = [];
     for (let i=0;i<exist.length;i++){
         let startGrid = parseInt(exist[i].parentNode.id);
-        let endGrid = parseInt(exist[i].offsetHeight) / parseInt(exist[i].parentNode.offsetHeight) + startGrid - 1;
+        let gridHeight = document.getElementById("1").offsetHeight === 0 ?
+            document.getElementById("131").offsetHeight : document.getElementById("1").offsetHeight
+        let endGrid = parseInt(exist[i].offsetHeight) / gridHeight + startGrid - 1
+        // let endGrid = parseInt(exist[i].offsetHeight) / parseInt(exist[i].parentNode.offsetHeight) + startGrid - 1;
         if (!(endGrid < start||startGrid > end)) {
             conflict.push(new Node(startGrid, endGrid, exist[i].id))
         }
@@ -505,8 +556,6 @@ function refreshButton(buttons) {
         // 1 - GET THE SECTION MEETING TIME
         let section = buttons[i].id;
         let courseID = section.split("|")[0];
-        log(courseID)
-        log(courses)
         let courseInfo = courses[courseID]
         let sectionType = courseInfo.section;
         let meetings = courseInfo.meetings[section.split("|")[1]].schedule;
@@ -660,7 +709,6 @@ function SectionNode(schedule, sectionType, id) {
 function autoSelect() {
     let e = $("#autoselect-selection")[0]
     let autotype = e.options[e.selectedIndex].value;
-    log(autotype)
     let missing_sections = getMissing()
     missing_sections.forEach(section => {
         let selections = []
