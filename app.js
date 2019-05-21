@@ -26,7 +26,7 @@ app.get('/', function (req, res) {
 })
 
 https.createServer({
-    key: fs.readFileSync('privateKey.pem'),
+    key: fs.readFileSync('privatekey.pem'),
     cert: fs.readFileSync('certificate.pem')
 }, app)
 
