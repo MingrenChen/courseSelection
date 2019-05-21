@@ -25,7 +25,7 @@ app.get('/', function (req, res) {
     res.send('hello world')
 })
 
-https.createServer({
+let server = https.createServer({
     key: fs.readFileSync('privatekey.pem'),
     cert: fs.readFileSync('certificate.pem')
 }, app)
@@ -95,5 +95,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 // app.listen(process.env.PORT || 2000);
-https.listen(3000)
+server.listen(3000)
 console.log("Server started at " + 3000);
