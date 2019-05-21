@@ -1,16 +1,10 @@
 "use strict"
 var bodyParser = require('body-parser');
 var request = require('request');
-var https = require('https');
+var http = require('http');
 var path = require('path')
 var cors = require('cors')
 const fs = require('fs');
-const crypto = require("crypto")
-
-var privateKey = fs.readFileSync('privatekey.pem').toString();
-var certificate = fs.readFileSync('certificate.pem').toString();
-
-var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
 
 function jsonParse() {
     var parse = bodyParser.json();
@@ -25,7 +19,6 @@ let courses = JSON.parse(courses_raw);
 
 var express = require('express');
 var app = express();
-var httpsServer = https.createServer(credentials, app);
 app.use(cors())
 
 app.all('*', function(req, res, next) {
@@ -54,10 +47,10 @@ let ips = []
 
 
 app.get('/getautocomplete/:keyword',function(req, res) {
-    let ip = req.headers['x-forwarded-for'] || 
-     req.connection.remoteAddress || 
-     req.socket.remoteAddress ||
-     (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    let ip = req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        (req.connection.socket ? req.connection.socket.remoteAddress : null);
     if (!ips.includes(ip)) {
         ips.push(ip)
         console.log(ip + " came in")
@@ -83,5 +76,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-httpsServer.listen(2000);
+app.listen(process.env.PORT || 2000);
 console.log("Server started at " + process.env.PORT);
