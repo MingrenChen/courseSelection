@@ -17,7 +17,25 @@ function jsonParse() {
 let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
-var express = require('express');
+var express = require('express')
+var https = require('https')
+app = express()
+
+app.get('/', function (req, res) {
+    res.send('hello world')
+})
+
+https.createServer({
+    key: fs.readFileSync('privateKey.pem'),
+    cert: fs.readFileSync('certificate.pem')
+}, app)
+
+
+app.get('/', function(req,res) {
+    res.send('hello');
+});
+
+
 var app = express();
 app.use(cors())
 
@@ -40,9 +58,9 @@ app.get("/api", function (req, res) {
     res.send({1:2})
 })
 
-app.get('/',function(req, res) {
-    res.sendFile(__dirname + '/index.html');
-});
+// app.get('/',function(req, res) {
+//     res.sendFile(__dirname + '/index.html');
+// });
 let ips = []
 
 
@@ -76,5 +94,6 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-app.listen(process.env.PORT || 2000);
-console.log("Server started at " + process.env.PORT);
+// app.listen(process.env.PORT || 2000);
+https.listen(3000)
+console.log("Server started at " + 3000);

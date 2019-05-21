@@ -103,7 +103,7 @@ function addToCart(course) {
                 cookie__add_course(id_)
             }
         }
-        xhttp.open("GET", "https://www.mingren.life:2000/course/" + id_, false);
+        xhttp.open("GET", "https://159.203.28.233:2000/course/" + id_, false);
         xhttp.setRequestHeader("Content-Type", "application/json")
         xhttp.send();
     }
