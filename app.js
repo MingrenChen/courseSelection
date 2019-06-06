@@ -17,25 +17,7 @@ function jsonParse() {
 let courses_raw = fs.readFileSync('course.json');
 let courses = JSON.parse(courses_raw);
 
-var express = require('express')
-// var https = require('https')
-app = express()
-
-app.get('/', function (req, res) {
-    res.send('hello world')
-})
-
-// let server = https.createServer({
-//     key: fs.readFileSync('privatekey.pem'),
-//     cert: fs.readFileSync('certificate.pem')
-// }, app)
-
-
-app.get('/', function(req,res) {
-    res.send('hello');
-});
-
-
+var express = require('express');
 var app = express();
 app.use(cors())
 
@@ -58,17 +40,17 @@ app.get("/api", function (req, res) {
     res.send({1:2})
 })
 
-// app.get('/',function(req, res) {
-//     res.sendFile(__dirname + '/index.html');
-// });
+app.get('/',function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+});
 let ips = []
 
 
 app.get('/getautocomplete/:keyword',function(req, res) {
-    let ip = req.headers['x-forwarded-for'] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    let ip = req.headers['x-forwarded-for'] || 
+     req.connection.remoteAddress || 
+     req.socket.remoteAddress ||
+     (req.connection.socket ? req.connection.socket.remoteAddress : null);
     if (!ips.includes(ip)) {
         ips.push(ip)
         console.log(ip + " came in")
@@ -94,6 +76,5 @@ app.get('/course/:courseTitle', function (req, res) {
 
 
 
-// app.listen(process.env.PORT || 2000);
-app.listen(3000)
-console.log("Server started at " + 3000);
+app.listen(process.env.PORT || 2000);
+console.log("Server started at " + process.env.PORT);

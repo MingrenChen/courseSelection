@@ -43,7 +43,7 @@ function autocomplete(inp, courses) {
                 }
             }
         }
-        xhttp.open("GET", "http://www.mingren.life:2000/getautocomplete/" + val, true);
+        xhttp.open("GET", "http://159.203.28.233:2000/getautocomplete/" + val, true);
         xhttp.send();
 
     });
