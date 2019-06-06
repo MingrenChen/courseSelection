@@ -65,7 +65,7 @@ if (window.outerWidth < 600){
 // logic: when add a course to cart, disable all opening menu item and create a new, opened menu item on side bar
 function addToCart(course) {
     disableAll();
-    let id_ = course.slice(0,8) + "-" + course[8]+"-20189";
+    let id_ = course.slice(0,8) + "-" + course[8]+"-20199";
     if(id_[6] === "Y") credit+=1;
     else credit+=0.5;
     document.getElementById('credit').innerText = "Credit: " + credit
