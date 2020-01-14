@@ -2,22 +2,26 @@
     <li :class='showDetail' :id="'sidebar-course-' + course.keyCode">
         <div class="sidebar-header" :data-event="course.event" ref="sidebar-header" :style="this.headerStyle"></div>
         <div class="sidebar-content" ref="sidebar-content">
-            <div @click="sidebarCourseClick()"><span>{{course.code}}</span></div>
+            <div class="sidebar-course-title" @click="sidebarCourseClick()">
+                <div style="overflow-x: hidden;white-space:nowrap;width: 100%" :title="courseHeader">{{courseHeader}}</div>
+            </div>
+            <i class="fas fa-times remove-course" @click="removeCourse()"></i>
+
             <transition name="scroll" @enter="extendCourse()" @leave="closeCourse()">
-                <div v-if="this.showCourse">
+                <div class="sidebar-course-body" v-if="this.showCourse">
                     <span style="font-size: small; font-weight: bold">{{this.course.courseTitle}}</span><br>
                     <span style="font-size: smaller">Instructor: {{this.instructors}}</span>
                     <div class='LEC' v-if='this.getSectionWithTeachingMethod("LEC").length > 0'>
                         <label><strong>Lecture:</strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")' :section=key :course="course['keyCode']" :selections="selections"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <div class='TUT' v-if='this.getSectionWithTeachingMethod("TUT").length > 0'>
                         <label><strong>Tutorial: </strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("TUT")' :section=key :course="course['keyCode']" :selections="selections"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("TUT")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <div class='PRA' v-if='this.getSectionWithTeachingMethod("PRA").length > 0'>
                         <label><strong>Practice: </strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")' :section=key :course="course['keyCode']" :selections="selections"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <button @click="openModal()">detail</button>
                 </div>
@@ -31,6 +35,7 @@
     import EventBus from "../js/EventBus";
     import sectionbutton from "./sectionbutton";
     import gsap from 'gsap'
+
 
     export default {
         name: "sidebar-course",
@@ -48,6 +53,16 @@
             this.headerStyle.height = this.$refs['sidebar-header'].offsetHeight + 'px'
         },
         computed: {
+            courseHeader: function(){
+                if (!this.showCourse){
+                    return this.course.code.slice(0, 6) + " " + this.course.courseTitle
+                } else {
+                    return this.course.code
+                }
+            },
+            allMeetingTime: function(){
+                return this.$parent.$parent.allMeetingTime
+            },
             showDetail: function (){
                 this.classList['sidebar-show-course'] = this.showCourse;
                 return this.classList
@@ -91,7 +106,14 @@
                 EventBus.$emit('meetingClick', this.course.keyCode)
             },
             openModal: function () {
-                EventBus.$emit('openModal', this.$refs['sidebar-header'].getBoundingClientRect(), this.course.keyCode)
+                EventBus.$emit('openModal', this.$refs['sidebar-header'].getBoundingClientRect(), this.$refs['sidebar-content'].getBoundingClientRect(), this.course.keyCode)
+            },
+            removeCourse: function () {
+                gsap.to('#sidebar-course-' + this.course.keyCode, {x: -this.$el.clientWidth, duration: 0.2, transformOrigin:"right",
+                    onComplete: function () {
+                        EventBus.$emit('removeCourse', this.course.keyCode)
+                    }.bind(this)
+                })
             }
         }
     }
@@ -104,6 +126,25 @@
         box-shadow: 5px 0px 5px rgba(1, 0, 0, 0.2);
 
     }
+    .remove-course {
+        position: absolute;
+        right: 2px;
+        float: right;
+        z-index: 1;
+    }
+    .sidebar-course-title {
+        padding: 10px;
+        height: 100%;
+        width: 95%;
+        left: 0;
+        top: 0;
+        box-sizing: border-box;
+        float: left;
+    }
+
+    .sidebar-course-title:hover {
+        background: #e9e9e9;
+    }
 
     li {
         height: $sidebar-hide-height;
@@ -112,8 +153,14 @@
 
         .sidebar-content {
             margin-left: $sidebar-header-width;
-            padding: 10px;
             height: 100%;
+            box-sizing: border-box;
+
+            .sidebar-course-body {
+                padding: 10px;
+                box-sizing: border-box;
+
+            }
         }
         .sidebar-header {
             display: block;
@@ -125,15 +172,16 @@
     }
 
     .scroll-enter-active {
-        transition: all .3s ease;
+        transition: all .2s ease;
     }
     .scroll-leave-active {
-        transition: all .1s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        transition: all 0s ease;
     }
     .scroll-enter, .scroll-leave-to
         /* .slide-fade-leave-active below version 2.1.8 */ {
-        transform: scaleY(0.2);
-        transform-origin: top;
+        transform-origin: top center;
         opacity: 0;
     }
+
+
 </style>

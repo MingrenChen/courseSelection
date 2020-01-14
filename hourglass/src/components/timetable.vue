@@ -28,7 +28,8 @@ export default {
   data: function () {
     return {
       days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      daysshort: ['MO', 'TU', 'WE', 'TH', 'FR']
+      daysshort: ['MO', 'TU', 'WE', 'TH', 'FR'],
+      timetable: []
     }
   },
   computed: {

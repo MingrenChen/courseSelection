@@ -71,6 +71,9 @@ app.get('/getautocomplete/:keyword',function(req, res) {
 app.get('/course/:courseTitle', function (req, res) {
     console.log("ask for course " + req.params.courseTitle)
     let course = {}
+    if (!courses[req.params.courseTitle]) {
+        res.status(404).send('Course Not Found')
+    }
     course[req.params.courseTitle] = courses[req.params.courseTitle]
     res.send(course)
 })

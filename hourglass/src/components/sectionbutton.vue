@@ -3,7 +3,7 @@
                     button_conflict: this.hasConflict,
                     button_selected: this.hasSelected,
                     sectionButton: true}'
-            v-on:click='this.buttonClick'>{{Object.keys(section)[0]}}</button>
+            @click='this.buttonClick' @mouseover="hover=true" @mouseleave="hover=false">{{Object.keys(section)[0]}}</button>
 
 </template>
 
@@ -13,11 +13,34 @@
 
     export default {
         name: "sectionbutton",
-        props: ['section', 'course', 'selections'],
+        props: ['section', 'course', 'selections','allMeetingTime','enableHover'],
         data: function(){
             return {
+                timeout: null,
+                hover: false,
+                hoverSelected: false,
                 selected: false,
             }
+        },
+        watch: {
+           hover: function (hover) {
+                if (!this.enableHover){
+                    return
+                }
+                if (hover){
+                   this.timeout = setTimeout(function (){
+                       this.selectCourse();
+                       this.hoverSelected = true
+                   }.bind(this), 500)
+                } else {
+                   clearTimeout(this.timeout);
+                   if (this.hoverSelected) {
+                       this.selectCourse()
+                       this.hoverSelected = false
+                   }
+
+                }
+           }
         },
         computed: {
             hasSelected: function (){
@@ -25,7 +48,7 @@
             },
             hasConflict: function (){
                 let has_conflict = false;
-                let times = this.$parent.$parent.$parent.allMeetingTime;
+                let times = this.allMeetingTime;
                 let buttonTime = Object.values(Object.values(this.section)[0].schedule);
                 buttonTime.forEach(currenttime => {
                     let start = currenttime.meetingStartTime;
@@ -33,11 +56,7 @@
                     times.forEach(time => {
                         if (currenttime.meetingScheduleId !== time.meetingScheduleId &&
                             currenttime.meetingDay === time.meetingDay){
-                            if (start < time.meetingStartTime && end > time.meetingStartTime){
-                                has_conflict = true
-                            } else if (time.meetingStartTime < start && time.meetingEndTime > start){
-                                has_conflict = true
-                            } else if (time.meetingStartTime === start && time.meetingEndTime === end){
+                            if (!(start >= time.meetingEndTime || end <= time.meetingStartTime)){
                                 has_conflict = true
                             }
                         }
@@ -47,7 +66,7 @@
             },
         },
         methods: {
-            buttonClick: function () {
+            selectCourse: function () {
                 if (this.hasSelected){
                     EventBus.$emit('unselectSection',
                         {
@@ -62,15 +81,23 @@
                         })
                 }
             },
-
+            buttonClick: function () {
+                clearTimeout(this.timeout)
+                if (this.hoverSelected) {
+                    this.hoverSelected = false
+                } else {
+                    this.selectCourse()
+                }
+            }
         },
     }
 </script>
 
 <style scoped lang="scss">
     .sectionButton {
-        margin: 5px;
+        margin: 3px;
         font-size: small;
+        padding: 0 3px 0 3px;
         color: #33cc33;
         border: 1px solid #33cc33;
         width: max-content;

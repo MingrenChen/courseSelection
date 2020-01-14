@@ -3,7 +3,7 @@
         <div id="logo">logo here</div>
         <div class="cd-sidenav__courses">
             <ul>
-                <sidebar-course v-for="course in Object.values(this.courses)"
+                <sidebar-course v-for="course in courses" :key="course.keyCode"
                                 :show-course="sidebarState.focusCourse === course.keyCode"
                                 :course="course" :selections="selectedSections(course)"></sidebar-course>
             </ul>
@@ -41,6 +41,7 @@
         overflow-x: hidden; /* Disable horizontal scroll */
         padding-top: 5px;
         box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.2);
+        overflow-y: hidden; /* Hide vertical scrollbar */
 
         #logo{
             height: 10%;

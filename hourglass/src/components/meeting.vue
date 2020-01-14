@@ -1,9 +1,9 @@
 <template>
-    <li :class="meetingClassList" :style="getStyle" v-on:click="meetingClick">
-        <a :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0">
-            <strong class="cd-schedule__name">{{this.courseCode}}</strong><br>
-            <span style="font-size: small">{{this.meeting.selectedSectionId}}</span><br>
-            <em class="cd-schedule__name">{{this.courseTitle}}</em>
+    <li :class="meetingClassList" :style="getStyle" @click="meetingClick" >
+        <a :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
+            <strong class="cd-schedule__name" ref="code">{{this.courseCode}}</strong><br>
+            <span style="font-size: small" ref="section">{{this.meeting.selectedSectionId}}</span><br>
+            <em class="cd-schedule__name" v-if="isOverflow()" ref="title">{{this.courseTitle}}</em>
         </a>
     </li>
 </template>
@@ -17,12 +17,21 @@
             return {
                 selected: false,
                 style: {},
-                meetingClassList: ['cd-schedule__event']
+                meetingClassList: ['cd-schedule__event'],
+                hideTitle: false
             }
+        },
+        mounted: function () {
+            this.setupStyle();
+            this.siblingMeetings.forEach(sibling => sibling.setupStyle())
+
+        },
+        destroyed: function(){
+            this.siblingMeetings.forEach(sibling => sibling.setupStyle())
         },
         computed: {
             courseCode: function () {
-                return this.meeting['code']
+                return this.meeting['code'].slice(0, 6)
             },
             courseTitle: function () {
                 return this.meeting['courseTitle']
@@ -44,15 +53,8 @@
             siblingMeetings: function () {
                 var thisMeeting = this;
                 return this.$parent.$children.filter(e => e!== thisMeeting)
-            }
+            },
 
-        },
-        mounted: function () {
-            this.setupStyle();
-            this.siblingMeetings.forEach(sibling => sibling.setupStyle())
-        },
-        destroyed: function(){
-            this.siblingMeetings.forEach(sibling => sibling.setupStyle())
         },
         methods: {
             setupStyle: function(){
@@ -60,6 +62,9 @@
                 let timelineStart = this.getScheduleTimestamp('9:00');
                 let start = this.getScheduleTimestamp(this.startTime);
                 let timelineUnitDuration = this.getScheduleTimestamp('10:00') - timelineStart;
+                if (!this.$parent.$refs.header){
+                    return
+                }
                 let slotHeight = this.$parent.$refs.header.offsetHeight;
                 let eventTop = slotHeight*(start - timelineStart)/timelineUnitDuration - 1 + 'px';
                 let eventHeight = slotHeight*duration/timelineUnitDuration + 1 + 'px';
@@ -86,8 +91,11 @@
             meetingClick: function () {
                 EventBus.$emit('meetingClick', this.meeting.keyCode);
             },
-            removeEventSelectedClass: function () {
-                this.meetingClassList.splice(this.meetingClassList.indexOf('cd-schedule__event--selected'), 1);
+            isOverflow: function () {
+                let start = this.getScheduleTimestamp(this.meeting.meetingStartTime)
+                let end = this.getScheduleTimestamp(this.meeting.meetingEndTime);
+                let processorTotal = this.meeting.processorTotal
+                return (end - start) > 60 && processorTotal === 1
             }
         },
     }
@@ -103,12 +111,14 @@
         a {
             position: relative;
             box-sizing: border-box;
-            padding: 1em;
+            padding: 3px;
+            text-align: center;
             display: block;
             height: 100%;
             box-shadow: inset 0 -3px 0 rgba(#000, .2);
             text-decoration: none;
             color: white;
+            overflow: scroll;
         }
     }
 

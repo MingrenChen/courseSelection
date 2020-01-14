@@ -21,14 +21,8 @@ Node.prototype.isConflictWith = function (other) {
         return false
     }
     // if this start before other start, and end after other start
-    if (this.start < other.start && this.end > other.start){
-        return true
-    } else if (other.start < this.start && other.end > this.start){
-        return true
-    } else if (other.start === this.start && other.end === this.end){
-        return true
-    }
-    return false
+    return !(this.start >= other.end || this.end <= other.start);
+
 };
 
 Node.prototype.getAllConflict = function(others) {

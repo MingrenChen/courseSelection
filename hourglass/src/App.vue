@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app" v-if="!rerender">
         <div id="searchArea">
             <!--      <search></search>-->
         </div>
@@ -10,10 +10,11 @@
 
         <timetable  v-if="this.selectionLoading" :selections="this.selections" :courses="this.courses"></timetable>
 
-        <modal v-if="modalState.course !== null" :modal-state="this.modalState">
+        <modal v-if="modalState.course !== null" :modal-state="this.modalState"
+               :all-meeting-time="this.allMeetingTime" :selections="this.selections[modalState.course.keyCode]">
         </modal>
-        <transition name="cover">
-            <div v-if="this.modalState.selectedMeeting !== undefined" class="cd-schedule__cover-layer" v-on:click="closeModal"></div>
+        <transition name="cover" @click="">
+            <div v-if="modalState.course !== null" class="cd-schedule__cover-layer" v-on:click="closeModal"></div>
         </transition>
     </div>
 </template>
@@ -24,6 +25,11 @@
     import EventBus from '@/js/EventBus'
     import sidebar from "./components/sidebar";
     import axios from 'axios'
+    import Vue from 'vue'
+    import VueCookies from 'vue-cookies'
+    Vue.use(VueCookies)
+    Vue.$cookies.config('1y')
+
 
     export default {
         name: 'app',
@@ -33,6 +39,7 @@
             modal
         },
         created() {
+            console.log(Vue.$cookies.get('selections'))
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
         },
@@ -43,8 +50,6 @@
                 } else {
                     this.sidebarState.focusCourse = null
                 }
-                // this.modalState.selectedMeeting = meeting;
-                // this.openModal(meeting.courseCode)
             });
             EventBus.$on('selectSection', info => {
                 this.selectSection(info.courseID, info.sectionID)
@@ -53,12 +58,14 @@
                 this.unSelectSection(info.courseID, info.sectionID)
             })
             // bounding box is for animation, where the color column come from.
-            EventBus.$on('openModal', (boundingBox, keyCode) => {
-                this.modalState.course = this.courses[keyCode]
-
-                this.modalState.boundingBox = {top: boundingBox.top, left: boundingBox.left,
-                    width: boundingBox.width, height: boundingBox.height}
-                this.modalState.sections = this.selections[keyCode]
+            EventBus.$on('openModal', (headerBoundingBox, contentBoundingBox, keyCode) => {
+                this.openModal(headerBoundingBox, contentBoundingBox, keyCode)
+            });
+            EventBus.$on('closeModal', ()=>{
+                this.closeModal()
+            });
+            EventBus.$on('removeCourse', keyCode => {
+                this.unSelectCourse(keyCode)
             })
 
             // first create a collection of request, and send them all together.
@@ -68,13 +75,23 @@
                 requests.push(axios.get('http://localhost:2000/course/' + courseID))
             })
             axios.all(requests).then(responses => {
-                for (let i=0;i<responses.length; i++){
-                    let course = responses[i].data
-                    course[Object.keys(course)[0]].event = 'event-' + i
-                    course[Object.keys(course)[0]].keyCode = Object.keys(course)[0]
-                    Object.assign(this.courses, course)
-                }
-                this.selectionLoading = true
+                console.log(responses)
+                // for (let i=0;i<responses.length; i++){
+                //     // if (respo)
+                //     if (responses[i].status === 200){
+                //         let course = responses[i].data
+                //         course[Object.keys(course)[0]].event = 'event-' + i
+                //         course[Object.keys(course)[0]].keyCode = Object.keys(course)[0]
+                //         Object.assign(this.courses, course)
+                //     } else {
+                //         console.log(responses[i])
+                //         // this.$delete(this.selections, courseID)
+                //     }
+                //
+                // }
+                // this.selectionLoading = true
+            }).catch(error => {
+                console.log(error)
             })
         },
         destroyed() {
@@ -82,17 +99,18 @@
         },
         data: function() {
             return {
+                rerender: false,
                 selectionLoading: false,
                 // course and sections which user selected. Cache on local.
                 selections: {
                     'MAT137Y1-Y-20199': ['LEC-0101'],
                     'CSC148H1-F-20199': ['LEC-0101', 'TUT-0201'],
-                    'CSC165H1-F-20199': []
+                    'BIO120H1-F-201991': []
                 },
                 // the popup's state.
                 modalState: {
-                    sections: null,
-                    boundingBox: null,
+                    headerBoundingBox: null,
+                    contentBoundingBox: null,
                     course: null
                 },
                 sidebarState: {
@@ -104,6 +122,11 @@
                     height: 0
                 },
                 courses: {}
+            }
+        },
+        watch: {
+            selections: function () {
+                Vue.$cookies.set('selections', this.selections)
             }
         },
         computed: {
@@ -120,7 +143,6 @@
                         result[key][value]['event'] = 'event-' + i
                     })
                 }
-
                 return result
             },
 
@@ -151,20 +173,23 @@
                     return resultCourse
                 }
             },
-            // remove all
             getCourseSectionInfo: function(courseId, sectionId) {
                 let course = JSON.parse(JSON.stringify(this.getCourseInfo(courseId)));
                 course['meetings'] = course['meetings'][sectionId];
                 course.selectedSectionId = sectionId;
                 return course
             },
-            openModal: function(courseId) {
-                this.modalState.currentModalEvent = this.getCourseInfo(courseId);
-                this.modalState.modalIsOpening = true
+            openModal: function(headerBoundingBox, contentBoundingBox, keyCode) {
+                this.modalState.course = this.courses[keyCode]
+                this.modalState.headerBoundingBox = {top: headerBoundingBox.top, left: headerBoundingBox.left,
+                    width: headerBoundingBox.width, height: headerBoundingBox.height}
+                this.modalState.contentBoundingBox = {top: contentBoundingBox.top, left: contentBoundingBox.left,
+                    width: contentBoundingBox.width, height: contentBoundingBox.height}
             },
             closeModal: function() {
-                this.modalState.selectedMeeting = undefined;
-                this.modalState.modalIsClosing = true
+                this.modalState.course = null
+                this.modalState.headerBoundingBox = null
+                this.modalState.contentBoundingBox = null
             },
             selectSection: function(courseID, sectionID) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
@@ -180,6 +205,13 @@
                 selections[courseID] = this.selections[courseID].filter(e => e !== sectionID);
                 this.selections = selections
             },
+            unSelectCourse: function (keyCode) {
+                this.$delete(this.selections, keyCode)
+                this.$delete(this.courses, keyCode)
+                if (this.sidebarState.focusCourse === keyCode){
+                    this.sidebarState.focusCourse = null
+                }
+            }
 
         }
     }
@@ -194,6 +226,7 @@
         font-family: 'Open Sans', sans-serif;
         font-weight: lighter;
         height: 100%;
+        box-sizing: border-box;
     }
 
     ul {
@@ -211,8 +244,7 @@
 
     .cd-schedule__event [data-event="event-0"],
     .sidebar-header[data-event="event-0"],
-    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__header,
-    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__content {
+    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__header{
         // this is used to set a background color for the event and the modal window
         background: $color-event-0;
     }
@@ -245,7 +277,7 @@
     .cd-schedule__cover-layer {
         // layer between the content and the modal window
         position: fixed;
-        z-index: 2;
+        z-index: 1;
         top: 0;
         left: 0;
         height: 100%;
