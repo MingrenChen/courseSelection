@@ -194,7 +194,6 @@
         font-family: 'Open Sans', sans-serif;
         font-weight: lighter;
         height: 100%;
-
     }
 
     ul {
@@ -212,7 +211,7 @@
 
     .cd-schedule__event [data-event="event-0"],
     .sidebar-header[data-event="event-0"],
-    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__header-bg,
+    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__header,
     .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__content {
         // this is used to set a background color for the event and the modal window
         background: $color-event-0;
@@ -220,26 +219,26 @@
 
     .cd-schedule__event [data-event="event-1"],
     .sidebar-header[data-event="event-1"],
-    .cd-schedule-modal[data-event="event-1"] .cd-schedule-modal__header-bg {
+    .cd-schedule-modal[data-event="event-1"] .cd-schedule-modal__header {
         // this is used to set a background color for the event and the modal window
         background: $color-event-1;
     }
 
     .cd-schedule__event [data-event="event-2"],
     .sidebar-header[data-event="event-2"],
-    .cd-schedule-modal[data-event="event-2"] .cd-schedule-modal__header-bg {
+    .cd-schedule-modal[data-event="event-2"] .cd-schedule-modal__header {
         background: $color-event-2;
     }
 
     .cd-schedule__event [data-event="event-3"],
     .sidebar-header[data-event="event-3"],
-    .cd-schedule-modal[data-event="event-3"] .cd-schedule-modal__header-bg {
+    .cd-schedule-modal[data-event="event-3"] .cd-schedule-modal__header {
         background: $color-event-3
     }
 
     .cd-schedule__event [data-event="event-4"],
     .sidebar-header[data-event="event-4"],
-    .cd-schedule-modal[data-event="event-4"] .cd-schedule-modal__header-bg {
+    .cd-schedule-modal[data-event="event-4"] .cd-schedule-modal__header {
         background: $color-event-4
     }
 

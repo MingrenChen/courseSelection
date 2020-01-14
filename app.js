@@ -70,7 +70,9 @@ app.get('/getautocomplete/:keyword',function(req, res) {
 
 app.get('/course/:courseTitle', function (req, res) {
     console.log("ask for course " + req.params.courseTitle)
-    res.send(courses[req.params.courseTitle])
+    let course = {}
+    course[req.params.courseTitle] = courses[req.params.courseTitle]
+    res.send(course)
 })
 
 

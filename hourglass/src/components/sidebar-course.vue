@@ -107,7 +107,7 @@
 
     li {
         height: $sidebar-hide-height;
-
+        margin-top: 0.5px;
         /*position: absolute;*/
 
         .sidebar-content {
@@ -118,6 +118,7 @@
         .sidebar-header {
             display: block;
             float: left;
+            left: 0;
             /*height: 100%;*/
             width: $sidebar-header-width;
         }

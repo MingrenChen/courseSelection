@@ -76,6 +76,7 @@
         width: max-content;
         height: 21px;
         word-wrap: break-word;
+        background: white;
     }
 
     .sectionButton:hover {
