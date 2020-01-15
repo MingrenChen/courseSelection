@@ -1,7 +1,7 @@
 <template>
     <div id="app" v-if="!rerender">
         <div id="searchArea">
-            <!--      <search></search>-->
+            <autocomplete></autocomplete>
         </div>
 
         <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.courses"
@@ -24,22 +24,27 @@
     import modal from './components/modal.vue'
     import EventBus from '@/js/EventBus'
     import sidebar from "./components/sidebar";
+    import autocomplete from "./components/autocomplete";
     import axios from 'axios'
     import Vue from 'vue'
     import VueCookies from 'vue-cookies'
+    import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+
+    Vue.use(BootstrapVue)
+    Vue.use(IconsPlugin)
+
     Vue.use(VueCookies)
     Vue.$cookies.config('1y')
-
 
     export default {
         name: 'app',
         components: {
             sidebar,
             timetable,
-            modal
+            modal,
+            autocomplete
         },
         created() {
-            console.log(Vue.$cookies.get('selections'))
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
         },
@@ -75,21 +80,19 @@
                 requests.push(axios.get('http://localhost:2000/course/' + courseID))
             })
             axios.all(requests).then(responses => {
-                console.log(responses)
-                // for (let i=0;i<responses.length; i++){
-                //     // if (respo)
-                //     if (responses[i].status === 200){
-                //         let course = responses[i].data
-                //         course[Object.keys(course)[0]].event = 'event-' + i
-                //         course[Object.keys(course)[0]].keyCode = Object.keys(course)[0]
-                //         Object.assign(this.courses, course)
-                //     } else {
-                //         console.log(responses[i])
-                //         // this.$delete(this.selections, courseID)
-                //     }
-                //
-                // }
-                // this.selectionLoading = true
+                for (let i=0;i<responses.length; i++){
+                    if (Object.keys(responses[i].data).length > 0){
+                        let course = responses[i].data
+                        course[Object.keys(course)[0]].event = 'event-' + i
+                        course[Object.keys(course)[0]].keyCode = Object.keys(course)[0]
+                        Object.assign(this.courses, course)
+                    } else {
+                        let url_split = responses[i].config.url.split('/')
+                        let courseId = url_split[url_split.length - 1]
+                        this.$delete(this.selections, courseId)
+                    }
+                }
+                this.selectionLoading = true
             }).catch(error => {
                 console.log(error)
             })
@@ -105,7 +108,7 @@
                 selections: {
                     'MAT137Y1-Y-20199': ['LEC-0101'],
                     'CSC148H1-F-20199': ['LEC-0101', 'TUT-0201'],
-                    'BIO120H1-F-201991': []
+                    'CSC108H1-F-20199': []
                 },
                 // the popup's state.
                 modalState: {
@@ -127,6 +130,8 @@
         watch: {
             selections: function () {
                 Vue.$cookies.set('selections', this.selections)
+                console.log('cookie changed - ')
+                console.log(this.$cookies.get('selections'))
             }
         },
         computed: {
@@ -211,8 +216,11 @@
                 if (this.sidebarState.focusCourse === keyCode){
                     this.sidebarState.focusCourse = null
                 }
+            },
+            search: function (input) {
+                console.log(input)
+                return [1,2,3,4,5]
             }
-
         }
     }
 </script>
@@ -220,6 +228,8 @@
 <style lang="scss">
     @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap');
     @import "assets/css/variable.scss";
+    @import '../node_modules/bootstrap/scss/bootstrap';
+    @import '../node_modules/bootstrap-vue/src/index.scss';
 
     html,
     body {
@@ -240,6 +250,7 @@
 
     #searchArea {
         height: $schedule-search-height;
+
     }
 
     .cd-schedule__event [data-event="event-0"],

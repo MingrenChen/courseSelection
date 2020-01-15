@@ -119,6 +119,8 @@
             text-decoration: none;
             color: white;
             overflow: scroll;
+            overflow-x: hidden;
+            overflow-y: hidden;
         }
     }
 
