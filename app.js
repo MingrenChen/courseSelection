@@ -46,7 +46,7 @@ app.get('/',function(req, res) {
 let ips = []
 
 
-app.get('/getautocomplete/:keyword',function(req, res) {
+app.get('/getautocomplete/:keyword?',function(req, res) {
     let ip = req.headers['x-forwarded-for'] || 
      req.connection.remoteAddress || 
      req.socket.remoteAddress ||
@@ -56,12 +56,18 @@ app.get('/getautocomplete/:keyword',function(req, res) {
         console.log(ip + " came in")
     }
     let keyword = req.params.keyword
+    if (!keyword){
+        res.send([])
+    }
     const course_titles = Object.keys(courses);
     let arr = []
     let i = 0
-    while (i<course_titles.length && arr.length<10){
+    while (i<course_titles.length){
         if (course_titles[i].substr(0, keyword.length).toUpperCase() === keyword.toUpperCase()) {
-            arr.push(course_titles[i].substring(0,8) + course_titles[i][9] + " " + courses[course_titles[i]].courseTitle)
+            // arr.push(course_titles[i].substring(0,8) + course_titles[i][9] + " " + courses[course_titles[i]].courseTitle)
+            let course = {}
+            course[course_titles[i]] = courses[course_titles[i]]
+            arr.push(course)
         }
         i++;
     }

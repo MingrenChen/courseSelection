@@ -1,6 +1,9 @@
 <template>
     <div class="sidenav">
         <div id="logo">logo here</div>
+        <div class="sidebar-credit">
+            <span>Credit - Fall: {{getCredit('F')}} , Winter: {{getCredit('S')}} </span>
+        </div>
         <div class="cd-sidenav__courses">
             <ul>
                 <sidebar-course v-for="course in courses" :key="course.keyCode"
@@ -17,13 +20,25 @@
     export default {
         name: "sidebar",
         props: ['courses', 'selections', 'sidebarState'],
+        data: function(){
+            return {
+            }
+        },
         components: {
-            'sidebar-course': require('./sidebar-course').default
+            'sidebar-course': require('./sidebar-course').default,
         },
         methods: {
             selectedSections: function (course) {
                 return this.selections[course.keyCode]
-            }
+            },
+            getCredit: function(semester) {
+                return Object.keys(this.selections).map(element => {
+                    if (element.split('-')[1] === semester || element.split('-')[1] === 'Y'){
+                        return 1
+                    }
+                    return 0
+                }).reduce((a,b) => a + b, 0)/2
+            },
         }
     }
 </script>
@@ -41,14 +56,16 @@
         overflow-x: hidden; /* Disable horizontal scroll */
         padding-top: 5px;
         box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.2);
-        overflow-y: hidden; /* Hide vertical scrollbar */
+        /*overflow-y: hidden; !* Hide vertical scrollbar *!*/
 
         #logo{
             height: 10%;
         }
-
+        .sidebar-credit {
+            height: 3%;
+        }
         .cd-sidenav__courses{
-            height: 90%;
+            height: 87%;
             box-shadow: 0 -5px 20px -5px rgba(200, 0, 0, 0.2);
 
             ul {

@@ -1,38 +1,59 @@
 <template>
     <div id="app" v-if="!rerender">
         <div id="searchArea">
-            <autocomplete></autocomplete>
+            <div class="cd-sidenav__semester">
+                <div class="cd-sidenav__semester-toggle">
+                    <i class="fab fa-canadian-maple-leaf fa-2x" :class="semesterClass('fall')"></i>
+                    <div id="fall" :class="semesterClass('fall')">Fall</div>
+                    <toggle-button
+                            :color="{checked: 'deepskyblue', unchecked: 'rgb(242, 122, 41)'}"
+                            @change="switchSemester"
+                    ></toggle-button>
+                    <div id="winter" :class="semesterClass('winter')">Winter</div>
+                    <i class="fas fa-snowflake fa-2x" :class="semesterClass('winter')"></i>
+                </div>
+            </div>
+
+            <Autocomplete :search="search"
+                          :get-result-value="getResultValue"
+                          @submit="selectCourse"
+            ></Autocomplete>
         </div>
 
-        <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.courses"
+        <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.cleanCourse"
                  :selections="this.selections">
         </sidebar>
 
-        <timetable  v-if="this.selectionLoading" :selections="this.selections" :courses="this.courses"></timetable>
+        <timetable  v-if="this.selectionLoading" :selections="this.selections" :semester="this.semester" :courses="this.cleanCourse"></timetable>
 
         <modal v-if="modalState.course !== null" :modal-state="this.modalState"
                :all-meeting-time="this.allMeetingTime" :selections="this.selections[modalState.course.keyCode]">
         </modal>
-        <transition name="cover" @click="">
-            <div v-if="modalState.course !== null" class="cd-schedule__cover-layer" v-on:click="closeModal"></div>
+        <transition name="cover">
+            <div v-if="modalState.course !== null" class="cd-schedule__cover-layer" @click="closeModal"></div>
         </transition>
     </div>
 </template>
 
 <script>
+    import { ToggleButton } from 'vue-js-toggle-button'
     import timetable from './components/timetable.vue'
     import modal from './components/modal.vue'
     import EventBus from '@/js/EventBus'
     import sidebar from "./components/sidebar";
-    import autocomplete from "./components/autocomplete";
     import axios from 'axios'
     import Vue from 'vue'
     import VueCookies from 'vue-cookies'
-    import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+    // autocomplete for search bar
+    import Autocomplete from '@trevoreyre/autocomplete-vue'
+    import '@trevoreyre/autocomplete-vue/dist/style.css'
+    // notification message
+    import VueNotification from "@kugatsu/vuenotification";
+    Vue.use(VueNotification, {
+        timer: 20
+    });
 
-    Vue.use(BootstrapVue)
-    Vue.use(IconsPlugin)
-
+    Vue.use(Autocomplete)
     Vue.use(VueCookies)
     Vue.$cookies.config('1y')
 
@@ -42,7 +63,9 @@
             sidebar,
             timetable,
             modal,
-            autocomplete
+            Autocomplete,
+            ToggleButton,
+
         },
         created() {
             window.addEventListener('resize', this.handleResize);
@@ -73,6 +96,9 @@
                 this.unSelectCourse(keyCode)
             })
 
+            // get selections from cookie.
+            this.selections = Vue.$cookies.get('selections')
+
             // first create a collection of request, and send them all together.
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
             let requests = [];
@@ -83,8 +109,6 @@
                 for (let i=0;i<responses.length; i++){
                     if (Object.keys(responses[i].data).length > 0){
                         let course = responses[i].data
-                        course[Object.keys(course)[0]].event = 'event-' + i
-                        course[Object.keys(course)[0]].keyCode = Object.keys(course)[0]
                         Object.assign(this.courses, course)
                     } else {
                         let url_split = responses[i].config.url.split('/')
@@ -96,19 +120,22 @@
             }).catch(error => {
                 console.log(error)
             })
+
+
         },
         destroyed() {
             window.removeEventListener('resize', this.handleResize)
         },
         data: function() {
             return {
+                semester: 'fall',
                 rerender: false,
                 selectionLoading: false,
                 // course and sections which user selected. Cache on local.
                 selections: {
-                    'MAT137Y1-Y-20199': ['LEC-0101'],
-                    'CSC148H1-F-20199': ['LEC-0101', 'TUT-0201'],
-                    'CSC108H1-F-20199': []
+                },
+                // we need to store each course's data-event to measure it's color
+                courses_date_event: {
                 },
                 // the popup's state.
                 modalState: {
@@ -124,17 +151,25 @@
                     width: 0,
                     height: 0
                 },
-                courses: {}
+                courses: {},
             }
         },
         watch: {
             selections: function () {
                 Vue.$cookies.set('selections', this.selections)
-                console.log('cookie changed - ')
-                console.log(this.$cookies.get('selections'))
             }
         },
         computed: {
+            cleanCourse: function(){
+                let courses = JSON.parse(JSON.stringify(this.courses))
+                for (let i=0; i<Object.keys(courses).length;i++){
+                    let keyCode = Object.keys(courses)[i]
+                    let course = courses[keyCode]
+                    course.keyCode = keyCode
+                    course.event = this.getCourseDataEvent(keyCode)
+                }
+                return courses
+            },
             // get all the selected course info with selected section info.
             allSelectedCourses: function() {
                 let result = {}
@@ -162,7 +197,9 @@
                     })
                 })
                 return times
-            }
+            },
+
+
         },
         methods: {
             handleResize() {
@@ -172,11 +209,30 @@
             // get the course by course id from server
             getCourseInfo: function(courseId) {
                 let resultCourse = null;
-                if (this.courses[courseId]) {
-                    resultCourse = JSON.parse(JSON.stringify(this.courses[courseId]));
+                if (this.cleanCourse[courseId]) {
+                    resultCourse = JSON.parse(JSON.stringify(this.cleanCourse[courseId]));
                     resultCourse.keyCode = courseId
                     return resultCourse
                 }
+            },
+            getCourseDataEvent: function(courseId){
+                let data_event_id = Object.keys(this.courses_date_event)
+                    .find(data_event_id => this.courses_date_event[data_event_id] === courseId)
+                if (data_event_id){
+                    return 'event-' + data_event_id
+                } else {
+                    // if there's no such course in courseDataEvent, add one
+                    let i = 1
+                    while (i < 17) {
+                        if (!this.courses_date_event[i]){
+                            Vue.set(this.courses_date_event, i, courseId)
+                            return 'event-' + i
+                        }
+                        i ++;
+                    }
+                    return null
+                }
+
             },
             getCourseSectionInfo: function(courseId, sectionId) {
                 let course = JSON.parse(JSON.stringify(this.getCourseInfo(courseId)));
@@ -184,8 +240,17 @@
                 course.selectedSectionId = sectionId;
                 return course
             },
+            // get credit for different semester
+            getCredit: function(semester) {
+                return Object.keys(this.selections).map(element => {
+                    if (element.split('-')[1] === semester || element.split('-')[1] === 'Y'){
+                        return 1
+                    }
+                    return 0
+                }).reduce((a,b) => a + b, 0)/2
+            },
             openModal: function(headerBoundingBox, contentBoundingBox, keyCode) {
-                this.modalState.course = this.courses[keyCode]
+                this.modalState.course = this.cleanCourse[keyCode]
                 this.modalState.headerBoundingBox = {top: headerBoundingBox.top, left: headerBoundingBox.left,
                     width: headerBoundingBox.width, height: headerBoundingBox.height}
                 this.modalState.contentBoundingBox = {top: contentBoundingBox.top, left: contentBoundingBox.left,
@@ -196,6 +261,17 @@
                 this.modalState.headerBoundingBox = null
                 this.modalState.contentBoundingBox = null
             },
+            switchSemester: function(value){
+                if (this.semester === 'fall') {
+                    this.semester = 'winter'
+                } else {
+                    this.semester = 'fall'
+                }
+            },
+            semesterClass: function (semester) {
+                return {'semester-not-selected': this.semester !== semester}
+            },
+
             selectSection: function(courseID, sectionID) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
                 if (!(courseID in this.selections)) {
@@ -210,16 +286,50 @@
                 selections[courseID] = this.selections[courseID].filter(e => e !== sectionID);
                 this.selections = selections
             },
+            selectCourse: function(course){
+                if (this.courses[Object.keys(course)[0]]){
+                    this.sidebarState.focusCourse = Object.keys(course)[0]
+                } else {
+                    let sec = Object.values(course)[0].section
+                    let fallCredit = this.getCredit('F')
+                    let winterCredit = this.getCredit('S')
+                    if (sec === 'Y' &&  winterCredit>= 4 && fallCredit >= 4 ||
+                        sec !== 'Y' && this.getCredit(sec) >= 4){
+                        let message = "The maximum course load in the Fall/Winter Session is six courses. \n"
+
+                        this.$notification.error(message,
+                            {   infiniteTimer: true,
+                                position: "topCenter",
+                                showCloseIcn:true,
+                                title: 'You already selected 8 courses!'
+                            });
+                    } else {
+                        Vue.set(this.courses, Object.keys(course)[0], Object.values(course)[0])
+                        Vue.set(this.selections, Object.keys(course)[0], [])
+                    }
+
+                }
+            },
             unSelectCourse: function (keyCode) {
                 this.$delete(this.selections, keyCode)
                 this.$delete(this.courses, keyCode)
+                let event_id = parseInt(this.getCourseDataEvent(keyCode).split('-')[1])
+                this.$delete(this.courses_date_event, event_id)
                 if (this.sidebarState.focusCourse === keyCode){
                     this.sidebarState.focusCourse = null
                 }
             },
+            //
+
+            // the following 2 methods are for search and autocomplete
             search: function (input) {
-                console.log(input)
-                return [1,2,3,4,5]
+                return axios.get('http://localhost:2000/getautocomplete/' + input).then(response => {
+                    return response.data
+                })
+            },
+            getResultValue(result) {
+                let course = Object.values(result)[0]
+                return course.code.slice(0, 6) + course.section + " " + course.courseTitle
             }
         }
     }
@@ -228,8 +338,7 @@
 <style lang="scss">
     @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap');
     @import "assets/css/variable.scss";
-    @import '../node_modules/bootstrap/scss/bootstrap';
-    @import '../node_modules/bootstrap-vue/src/index.scss';
+
 
     html,
     body {
@@ -250,41 +359,78 @@
 
     #searchArea {
         height: $schedule-search-height;
+        .autocomplete {
+            width: 25%;
+            position: absolute;
+            left: 70%;
+            z-index: 3;
+        }
 
+        .cd-sidenav__semester{
+            position: absolute;
+            width: max-content;
+            left: calc(#{$sidenav-width} + 40px);
+            top: 20px;
+            .cd-sidenav__semester-toggle {
+                width: max-content;
+                text-align: center;
+                margin: 0 auto;
+                display: flex;
+                label {
+                    margin-top: 3px;
+                }
+            }
+
+            .semester-not-selected {
+                opacity: 0.6;
+                background: #cccccc !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+
+            #winter{
+                font-size: larger;
+                background: linear-gradient(deepskyblue, #8eedfa);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-left: 5px;
+            }
+
+            .fa-snowflake {
+                background: linear-gradient(deepskyblue, #8eedfa);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                display: initial; /* reset Font Awesome's display:inline-block */
+                margin-left: 5px;
+            }
+
+
+            .fa-canadian-maple-leaf {
+                background: linear-gradient(rgb(255, 0, 0), rgb(255, 163, 59));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                display: initial; /* reset Font Awesome's display:inline-block */
+                margin-right: 5px;
+            }
+
+            #fall{
+                font-size: larger;
+                background: linear-gradient(rgb(255, 0, 0), rgb(255, 163, 59));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-right: 5px;
+            }
+        }
     }
 
-    .cd-schedule__event [data-event="event-0"],
-    .sidebar-header[data-event="event-0"],
-    .cd-schedule-modal[data-event="event-0"] .cd-schedule-modal__header{
-        // this is used to set a background color for the event and the modal window
-        background: $color-event-0;
-    }
+    @for $i from 1 through 16 {
 
-    .cd-schedule__event [data-event="event-1"],
-    .sidebar-header[data-event="event-1"],
-    .cd-schedule-modal[data-event="event-1"] .cd-schedule-modal__header {
-        // this is used to set a background color for the event and the modal window
-        background: $color-event-1;
+        .cd-schedule__event [data-event=#{"event-" + $i}],
+        .sidebar-header[data-event=#{"event-" + $i}],
+        .cd-schedule-modal[data-event=#{"event-" + $i}] .cd-schedule-modal__header {
+            background:  nth($colors, $i)
+        }
     }
-
-    .cd-schedule__event [data-event="event-2"],
-    .sidebar-header[data-event="event-2"],
-    .cd-schedule-modal[data-event="event-2"] .cd-schedule-modal__header {
-        background: $color-event-2;
-    }
-
-    .cd-schedule__event [data-event="event-3"],
-    .sidebar-header[data-event="event-3"],
-    .cd-schedule-modal[data-event="event-3"] .cd-schedule-modal__header {
-        background: $color-event-3
-    }
-
-    .cd-schedule__event [data-event="event-4"],
-    .sidebar-header[data-event="event-4"],
-    .cd-schedule-modal[data-event="event-4"] .cd-schedule-modal__header {
-        background: $color-event-4
-    }
-
     .cd-schedule__cover-layer {
         // layer between the content and the modal window
         position: fixed;

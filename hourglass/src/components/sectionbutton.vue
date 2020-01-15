@@ -42,6 +42,28 @@
                 }
            }
         },
+        mounted: function(){
+            let times = this.allMeetingTime;
+            let buttonTime = Object.values(Object.values(this.section)[0].schedule);
+            buttonTime.forEach(currenttime => {
+                let start = currenttime.meetingStartTime;
+                let end = currenttime.meetingEndTime;
+                times.forEach(time => {
+                    let sameDay = (currenttime.meetingScheduleId !== time.meetingScheduleId &&
+                        currenttime.meetingDay === time.meetingDay)
+                    let sameSemester = (currenttime.section === time.section
+                        || currenttime.section === 'Y' || time.section === 'Y')
+                    if (this.section['TUT-0101']){
+                        console.log(this.section)
+                    }
+                    if (sameDay && sameSemester){
+                        if (!(start >= time.meetingEndTime || end <= time.meetingStartTime)){
+                            has_conflict = true
+                        }
+                    }
+                })
+            });
+        },
         computed: {
             hasSelected: function (){
                 return this.selections.includes(Object.keys(this.section)[0])
@@ -54,8 +76,11 @@
                     let start = currenttime.meetingStartTime;
                     let end = currenttime.meetingEndTime;
                     times.forEach(time => {
-                        if (currenttime.meetingScheduleId !== time.meetingScheduleId &&
-                            currenttime.meetingDay === time.meetingDay){
+                        let sameDay = (currenttime.meetingScheduleId !== time.meetingScheduleId &&
+                            currenttime.meetingDay === time.meetingDay)
+                        let sameSemester = (currenttime.section === time.section
+                            || currenttime.section === 'Y' || time.section === 'Y')
+                        if (sameDay && sameSemester){
                             if (!(start >= time.meetingEndTime || end <= time.meetingStartTime)){
                                 has_conflict = true
                             }

@@ -55,9 +55,15 @@
         computed: {
             courseHeader: function(){
                 if (!this.showCourse){
-                    return this.course.code.slice(0, 6) + " " + this.course.courseTitle
+                    return this.course.code.slice(0, 6) + this.course.section + " " + this.course.courseTitle
                 } else {
-                    return this.course.code
+                    if (this.course.section === 'F'){
+                        return this.course.code + " Fall"
+                    } else if (this.course.section === 'S'){
+                        return this.course.code + " Winter"
+                    } else {
+                        return this.course.code + ' All Year'
+                    }
                 }
             },
             allMeetingTime: function(){

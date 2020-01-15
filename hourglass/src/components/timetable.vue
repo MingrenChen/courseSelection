@@ -7,7 +7,7 @@
     </div>
     <div class="cd-schedule__events">
       <ul >
-        <day v-for="(day, i) in days" :day="day" :semester="'fall'" :dayshort='daysshort[i]'></day>
+        <day v-for="(day, i) in days" :day="day" :semester="semester" :dayshort='daysshort[i]'></day>
       </ul>
     </div>
 
@@ -20,7 +20,7 @@ import day from "./day";
 
 export default {
   name: 'timetable',
-  props: ['selections', 'courses'],
+  props: ['selections', 'courses', 'semester'],
   components: {
     timeslot,
     day,
@@ -66,7 +66,7 @@ export default {
             if (meeting.section === 'F'||meeting.section === 'Y'){
               result.fall[meeting.meetingDay].push(meeting)
             }
-            if (meeting.section === 'W'||meeting.section === 'Y'){
+            if (meeting.section === 'S'||meeting.section === 'Y'){
               result.winter[meeting.meetingDay].push(meeting)
             }
           })
