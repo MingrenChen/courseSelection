@@ -9,7 +9,7 @@
 </template>
 
 <script>
-    import EventBus from '../assets/js/EventBus'
+    import EventBus from '../assets/js/EventBus.js'
     export default {
         name: "meeting",
         props: ['meeting'],

@@ -43,7 +43,7 @@
     import { ToggleButton } from 'vue-js-toggle-button'
     import timetable from './components/timetable.vue'
     import modal from './components/modal.vue'
-    import EventBus from 'assets/js/EventBus'
+    import EventBus from 'assets/js/EventBus.js'
     import sidebar from "./components/sidebar";
     import axios from 'axios'
     import Vue from 'vue'
