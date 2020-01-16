@@ -51,7 +51,7 @@
     import gsap from "gsap";
     import sectionselection from "./sectionselection";
     import sectionbutton from "./sectionbutton";
-    import EventBus from "../js/EventBus";
+    import EventBus from "../assets/js/EventBus";
 
     export default {
         name: "modal",

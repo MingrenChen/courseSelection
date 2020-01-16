@@ -27,7 +27,7 @@ export default {
     -webkit-overflow-scrolling: touch;
     overflow: visible;
     padding: 0;
-    height: calc($schedule-rows-number * $schedule-rows-height);
+    height: calc(#{$schedule-rows-number} * #{$schedule-rows-height});
 
 
   }

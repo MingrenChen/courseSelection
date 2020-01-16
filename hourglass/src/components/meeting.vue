@@ -9,7 +9,7 @@
 </template>
 
 <script>
-    import EventBus from '@/js/EventBus'
+    import EventBus from '../assets/js/EventBus'
     export default {
         name: "meeting",
         props: ['meeting'],
@@ -54,7 +54,7 @@
                 var thisMeeting = this;
                 return this.$parent.$children.filter(e => e!== thisMeeting)
             },
-            
+
 
         },
         methods: {

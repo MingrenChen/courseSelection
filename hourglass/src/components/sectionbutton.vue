@@ -8,8 +8,8 @@
 </template>
 
 <script>
-    import NodeFactory from "../js/processor";
-    import EventBus from '@/js/EventBus'
+    import NodeFactory from "../assets/js/processor";
+    import EventBus from '../assets/js/EventBus'
 
     export default {
         name: "sectionbutton",

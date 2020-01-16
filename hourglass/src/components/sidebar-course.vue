@@ -32,7 +32,7 @@
 
 <script>
 
-    import EventBus from "../js/EventBus";
+    import EventBus from "../assets/js/EventBus";
     import sectionbutton from "./sectionbutton";
     import gsap from 'gsap'
 

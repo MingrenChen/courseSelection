@@ -8,7 +8,7 @@
 </template>
 
 <script>
-    import NodeFactory from '@/js/processor'
+    import NodeFactory from '../assets/js/processor'
     import meeting from "./meeting";
 
     export default {
