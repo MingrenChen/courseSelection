@@ -57,17 +57,19 @@ export default {
           let meetings = this.courses[courseId]['meetings'][section]['schedule']
           Object.keys(meetings).forEach(meetingId => {
             let meeting = meetings[meetingId]
-            meeting.keyCode = courseId
-            meeting.section = course.section
-            meeting.selectedSectionId = section
-            meeting.event = course.event
-            meeting.code = course.code
-            meeting.courseTitle = course.courseTitle
-            if (meeting.section === 'F'||meeting.section === 'Y'){
-              result.fall[meeting.meetingDay].push(meeting)
-            }
-            if (meeting.section === 'S'||meeting.section === 'Y'){
-              result.winter[meeting.meetingDay].push(meeting)
+            if (meeting.meetingDay){
+              meeting.keyCode = courseId
+              meeting.section = course.section
+              meeting.selectedSectionId = section
+              meeting.event = course.event
+              meeting.code = course.code
+              meeting.courseTitle = course.courseTitle
+              if (meeting.section === 'F'||meeting.section === 'Y'){
+                result.fall[meeting.meetingDay].push(meeting)
+              }
+              if (meeting.section === 'S'||meeting.section === 'Y'){
+                result.winter[meeting.meetingDay].push(meeting)
+              }
             }
           })
         })

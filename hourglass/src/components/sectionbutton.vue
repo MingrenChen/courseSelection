@@ -42,46 +42,26 @@
                 }
            }
         },
-        mounted: function(){
-            let times = this.allMeetingTime;
-            let buttonTime = Object.values(Object.values(this.section)[0].schedule);
-            buttonTime.forEach(currenttime => {
-                let start = currenttime.meetingStartTime;
-                let end = currenttime.meetingEndTime;
-                times.forEach(time => {
-                    let sameDay = (currenttime.meetingScheduleId !== time.meetingScheduleId &&
-                        currenttime.meetingDay === time.meetingDay)
-                    let sameSemester = (currenttime.section === time.section
-                        || currenttime.section === 'Y' || time.section === 'Y')
-                    if (this.section['TUT-0101']){
-                        console.log(this.section)
-                    }
-                    if (sameDay && sameSemester){
-                        if (!(start >= time.meetingEndTime || end <= time.meetingStartTime)){
-                            has_conflict = true
-                        }
-                    }
-                })
-            });
-        },
+
         computed: {
             hasSelected: function (){
                 return this.selections.includes(Object.keys(this.section)[0])
             },
             hasConflict: function (){
                 let has_conflict = false;
-                let times = this.allMeetingTime;
+                let allOccupiedTimes = this.allMeetingTime;
                 let buttonTime = Object.values(Object.values(this.section)[0].schedule);
+                let currentSection = this.course.split("-")[1]
                 buttonTime.forEach(currenttime => {
                     let start = currenttime.meetingStartTime;
                     let end = currenttime.meetingEndTime;
-                    times.forEach(time => {
-                        let sameDay = (currenttime.meetingScheduleId !== time.meetingScheduleId &&
-                            currenttime.meetingDay === time.meetingDay)
-                        let sameSemester = (currenttime.section === time.section
-                            || currenttime.section === 'Y' || time.section === 'Y')
+                    allOccupiedTimes.forEach(occupiedTime => {
+                        let sameDay = (currenttime.meetingScheduleId !== occupiedTime.meetingScheduleId &&
+                            currenttime.meetingDay === occupiedTime.meetingDay)
+                        let sameSemester = (currentSection === occupiedTime.section
+                            || currentSection === 'Y' || occupiedTime.section === 'Y')
                         if (sameDay && sameSemester){
-                            if (!(start >= time.meetingEndTime || end <= time.meetingStartTime)){
+                            if (!(start >= occupiedTime.meetingEndTime || end <= occupiedTime.meetingStartTime)){
                                 has_conflict = true
                             }
                         }
@@ -89,6 +69,10 @@
                 });
                 return has_conflict
             },
+            isOnline: function () {
+                return !!Object.values(this.section)[0].online;
+
+            }
         },
         methods: {
             selectCourse: function () {
@@ -104,6 +88,9 @@
                             courseID: this.course,
                             sectionID: Object.keys(this.section)[0]
                         })
+                    if (this.isOnline){
+                        this.$notification.new(Object.keys(this.section)[0] + " is an Online meeting.")
+                    }
                 }
             },
             buttonClick: function () {

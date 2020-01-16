@@ -54,6 +54,7 @@
                 var thisMeeting = this;
                 return this.$parent.$children.filter(e => e!== thisMeeting)
             },
+            
 
         },
         methods: {
@@ -67,7 +68,7 @@
                 }
                 let slotHeight = this.$parent.$refs.header.offsetHeight;
                 let eventTop = slotHeight*(start - timelineStart)/timelineUnitDuration - 1 + 'px';
-                let eventHeight = slotHeight*duration/timelineUnitDuration + 1 + 'px';
+                let eventHeight = slotHeight*duration/timelineUnitDuration + 2 + 'px';
                 let processorTotal = 0;
                 let processor = 0;
                 this.$parent.setSectionToday();
@@ -84,9 +85,8 @@
             getScheduleTimestamp: function (time) {
                 //accepts hh:mm format - convert hh:mm to timestamp
                 time = time.replace(/ /g,'');
-                var timeArray = time.split(':');
-                var timeStamp = parseInt(timeArray[0])*60 + parseInt(timeArray[1]);
-                return timeStamp;
+                let timeArray = time.split(':');
+                return parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]);;
             },
             meetingClick: function () {
                 EventBus.$emit('meetingClick', this.meeting.keyCode);
@@ -117,6 +117,7 @@
             height: 100%;
             box-shadow: inset 0 -3px 0 rgba(#000, .2);
             text-decoration: none;
+            border-right: solid white 1px;
             color: white;
             overflow: scroll;
             overflow-x: hidden;

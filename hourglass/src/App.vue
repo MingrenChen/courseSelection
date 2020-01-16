@@ -1,5 +1,9 @@
 <template>
     <div id="app" v-if="!rerender">
+        <transition name="dropping">
+            <Snowf v-if="droppingStart"
+                    v-bind="droppingConfig" />
+        </transition>
         <div id="searchArea">
             <div class="cd-sidenav__semester">
                 <div class="cd-sidenav__semester-toggle">
@@ -49,8 +53,19 @@
     import '@trevoreyre/autocomplete-vue/dist/style.css'
     // notification message
     import VueNotification from "@kugatsu/vuenotification";
+    import Snowf from 'vue-snowf';
+    import snowpick from './assets/image/snow.png'
+    import mapleleaf from './assets/image/mapleleaf.png'
+
+
     Vue.use(VueNotification, {
-        timer: 20
+        primary: {
+            background: "#85c0ff",
+            color: "white"
+        },
+        error: {
+            background: "#c73232"
+        }
     });
 
     Vue.use(Autocomplete)
@@ -65,7 +80,7 @@
             modal,
             Autocomplete,
             ToggleButton,
-
+            Snowf
         },
         created() {
             window.addEventListener('resize', this.handleResize);
@@ -97,7 +112,11 @@
             })
 
             // get selections from cookie.
-            this.selections = Vue.$cookies.get('selections')
+            if (Vue.$cookies.isKey('selections')){
+                 this.selections = Vue.$cookies.get('selections')
+            } else {
+                this.selections = {}
+            }
 
             // first create a collection of request, and send them all together.
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
@@ -152,6 +171,19 @@
                     height: 0
                 },
                 courses: {},
+                dropping: {'fall': mapleleaf, 'winter': snowpick},
+                droppingConfigData: {
+                    size: 20,
+                    speed: 5,
+                    wind: 1,
+                    opacity: 0.8,
+                    swing: 4,
+                    zIndex: 1,
+                    resize: true,
+                    color: "#00bfff",
+                },
+                droppingStart: false
+
             }
         },
         watch: {
@@ -160,6 +192,7 @@
             }
         },
         computed: {
+            // add keyCode and event number to course
             cleanCourse: function(){
                 let courses = JSON.parse(JSON.stringify(this.courses))
                 for (let i=0; i<Object.keys(courses).length;i++){
@@ -170,50 +203,32 @@
                 }
                 return courses
             },
-            // get all the selected course info with selected section info.
-            allSelectedCourses: function() {
-                let result = {}
-                for (let i = 0; i < Object.keys(this.selections).length; i++) {
-                    let key = Object.keys(this.selections)[i]
-                    let values = this.selections[key]
-                    result[key] = {}
-                    values.forEach(value => {
-                        result[key][value] = {}
-                        result[key][value] = this.getCourseSectionInfo(key, value)
-                        result[key][value]['event'] = 'event-' + i
-                    })
-                }
-                return result
-            },
-
             // get all the meeting time, use for check if conflict with some meetings
             allMeetingTime: function() {
                 let times = []
-                Object.keys(this.allSelectedCourses).forEach(courseID => {
-                    let sections = this.allSelectedCourses[courseID]
-                    Object.values(sections).forEach(section => {
-                        let meetings = Object.values(section.meetings.schedule)
-                        times = times.concat(meetings)
+                Object.values(this.cleanCourse).map(course => {
+                    Object.keys(course.meetings).forEach(sectionCode => {
+                        if (this.selections[course.keyCode].includes(sectionCode)){
+                            let meetings = Object.values(course.meetings[sectionCode].schedule)
+                            meetings.map(meeting => {
+                                meeting.section = course.section
+                            })
+                            times = times.concat(meetings)
+                        }
                     })
                 })
                 return times
             },
-
+            droppingConfig: function () {
+                this.droppingConfigData.image = this.dropping[this.semester]
+                return this.droppingConfigData
+            }
 
         },
         methods: {
             handleResize() {
                 this.window.width = window.innerWidth;
                 this.window.height = window.innerHeight
-            },
-            // get the course by course id from server
-            getCourseInfo: function(courseId) {
-                let resultCourse = null;
-                if (this.cleanCourse[courseId]) {
-                    resultCourse = JSON.parse(JSON.stringify(this.cleanCourse[courseId]));
-                    resultCourse.keyCode = courseId
-                    return resultCourse
-                }
             },
             getCourseDataEvent: function(courseId){
                 let data_event_id = Object.keys(this.courses_date_event)
@@ -233,12 +248,6 @@
                     return null
                 }
 
-            },
-            getCourseSectionInfo: function(courseId, sectionId) {
-                let course = JSON.parse(JSON.stringify(this.getCourseInfo(courseId)));
-                course['meetings'] = course['meetings'][sectionId];
-                course.selectedSectionId = sectionId;
-                return course
             },
             // get credit for different semester
             getCredit: function(semester) {
@@ -267,6 +276,8 @@
                 } else {
                     this.semester = 'fall'
                 }
+                this.droppingStart = true
+                setTimeout(()=>{this.droppingStart = false}, 1000)
             },
             semesterClass: function (semester) {
                 return {'semester-not-selected': this.semester !== semester}
@@ -319,7 +330,7 @@
                     this.sidebarState.focusCourse = null
                 }
             },
-            //
+
 
             // the following 2 methods are for search and autocomplete
             search: function (input) {
@@ -434,7 +445,7 @@
     .cd-schedule__cover-layer {
         // layer between the content and the modal window
         position: fixed;
-        z-index: 1;
+        z-index: 3;
         top: 0;
         left: 0;
         height: 100%;
@@ -452,9 +463,20 @@
 
     .cover-enter,
     .cover-leave-to
-
         /* .fade-leave-active below version 2.1.8 */
     {
         opacity: 0;
     }
-</style>
+
+
+    .dropping-enter-active,
+    .dropping-leave-active {
+        transition: opacity .5s;
+    }
+
+    .dropping-enter,
+    .dropping-leave-to
+        /* .fade-leave-active below version 2.1.8 */
+    {
+        opacity: 0;
+    }</style>

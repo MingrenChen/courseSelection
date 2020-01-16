@@ -3,12 +3,23 @@
         <div class="cd-schedule-modal__header" >
             <span style="font-weight: bold; font-size: large">{{this.course.code + this.course.section}}</span>
             <span style="font-style: italic; margin-top: 10px">{{this.course.courseTitle}}</span>
+            <div v-for="(times, sec) in sectionTimes" style="margin-top: 10px">
+                <span style="font-size: small">{{sec}}: </span>
+                <span v-for="time in times" style="font-size: smaller; margin-left: 10px">{{time}}</span>
+            </div>
+
         </div>
         <div class="cd-schedule-modal__content">
             <i class="fas fa-times" @click="closeModal()"></i>
             <div>
-                <span style="font-size: small; font-weight: bold">{{this.course.courseDescription}}</span><br>
-                <span style="font-size: smaller">Instructor: {{this.instructors}}</span>
+                <span style="font-size: small; font-weight: bold" v-html="this.course.courseDescription">
+                    {{this.course.courseDescription}}
+                </span>
+                <br>
+                <span style="font-size: smaller">Instructor(s): {{this.instructors}}</span>
+                <div class="relation-courses" v-if="getRelationCourses('exclusion')">Exclusion: {{getRelationCourses('exclusion')}}</div>
+                <div class="relation-courses" v-if="getRelationCourses('corequisite')">Exclusion: {{getRelationCourses('corequisite')}}</div>
+                <div class="relation-courses" v-if="getRelationCourses('prerequisite')">Exclusion: {{getRelationCourses('prerequisite')}}</div>
                 <div class='LEC' v-if='this.getSectionWithTeachingMethod("LEC").length > 0'>
                     <label><strong>Lecture:</strong></label>
                     <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")'
@@ -118,7 +129,22 @@
                     }
                 });
                 return Array.from(instructors).join(", ")
-            }
+            },
+            sectionTimes: function () {
+                let result = {}
+                this.selections.forEach(section => {
+                    let meetings = Object.values(this.course.meetings[section].schedule)
+                    let meetingsStr = meetings.map(meeting => {
+                        if (meeting.meetingDay){
+                            return meeting.meetingDay + " " + meeting.meetingStartTime + '-' + meeting.meetingEndTime
+                        } else {
+                            return 'Online Meeting'
+                        }
+                    })
+                    this.$set(result, section, meetingsStr)
+                });
+                return result
+            },
         },
         methods: {
             getSectionWithTeachingMethod: function (teachingMethod) {
@@ -139,6 +165,9 @@
             },
             closeModal: function () {
                 EventBus.$emit('closeModal')
+            },
+            getRelationCourses: function (relation) {
+                return this.course[relation]
             }
         },
     }
@@ -152,21 +181,21 @@
     }
     .cd-schedule-modal {
         position: absolute;
-        z-index: 2;
+        z-index: 4;
 
     }
     .cd-schedule-modal__header {
         width: 20%;
         height: 100%;
         align-content: center;
-        z-index: 3;
+        z-index: 4;
         transform-origin:left top;
         padding: 1em;
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
         box-sizing: border-box;
         color: white;
-
+        overflow: scroll;
         span {
             display: block;
         }
@@ -174,7 +203,6 @@
     }
     .cd-schedule-modal__content {
         position: absolute;
-        z-index: 3;
         padding: 1.5em 1.5em 1em 1em;
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -186,23 +214,11 @@
         height: 100%;
         float: right;
         transform-origin:left top;
-
-    }
-    .cd-schedule-modal__header-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
+        .relation-courses {
+            font-size: smaller;
+        }
     }
 
-    .cd-schedule-modal__body {
-        background: white;
-        width: inherit;
-        /*padding: var(--space-sm);*/
-        z-index: 3;
-        opacity: 1;
-    }
 
     .modal-body-enter-active, .modal-body-leave-active {
         transition: opacity 0.2s;
@@ -210,5 +226,6 @@
     .modal-body-enter, .modal-body-leave-to /* .fade-leave-active below version 2.1.8 */ {
         opacity: 0;
     }
+
 
 </style>
