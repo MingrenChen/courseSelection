@@ -24,11 +24,11 @@
             ></Autocomplete>
         </div>
 
-        <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.cleanCourse"
+        <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
                  :selections="this.selections">
         </sidebar>
 
-        <timetable  v-if="this.selectionLoading" :selections="this.selections" :semester="this.semester" :courses="this.cleanCourse"></timetable>
+        <timetable  v-if="this.selectionLoading" :selections="this.selections" :semester="this.semester" :courses="this.sanitizeCourse"></timetable>
 
         <modal v-if="modalState.course !== null" :modal-state="this.modalState"
                :all-meeting-time="this.allMeetingTime" :selections="this.selections[modalState.course.keyCode]">
@@ -53,24 +53,23 @@
     import '@trevoreyre/autocomplete-vue/dist/style.css'
     // notification message
     import VueNotification from "@kugatsu/vuenotification";
+    // animation when change semester
     import Snowf from 'vue-snowf';
     import snowpick from './assets/image/snow.png'
     import mapleleaf from './assets/image/mapleleaf.png'
 
-
     Vue.use(VueNotification, {
         primary: {
             background: "#85c0ff",
-            color: "white"
         },
         error: {
             background: "#c73232"
         }
     });
 
-    Vue.use(Autocomplete)
-    Vue.use(VueCookies)
-    Vue.$cookies.config('1y')
+    Vue.use(Autocomplete);
+    Vue.use(VueCookies);
+    Vue.$cookies.config('1y');
 
     export default {
         name: 'app',
@@ -96,10 +95,10 @@
             });
             EventBus.$on('selectSection', info => {
                 this.selectSection(info.courseID, info.sectionID)
-            })
+            });
             EventBus.$on('unselectSection', info => {
                 this.unSelectSection(info.courseID, info.sectionID)
-            })
+            });
             // bounding box is for animation, where the color column come from.
             EventBus.$on('openModal', (headerBoundingBox, contentBoundingBox, keyCode) => {
                 this.openModal(headerBoundingBox, contentBoundingBox, keyCode)
@@ -109,7 +108,7 @@
             });
             EventBus.$on('removeCourse', keyCode => {
                 this.unSelectCourse(keyCode)
-            })
+            });
 
             // get selections from cookie.
             if (Vue.$cookies.isKey('selections')){
@@ -123,15 +122,15 @@
             let requests = [];
             Object.keys(this.selections).forEach(courseID => {
                 requests.push(axios.get('http://localhost:2000/course/' + courseID))
-            })
+            });
             axios.all(requests).then(responses => {
                 for (let i=0;i<responses.length; i++){
                     if (Object.keys(responses[i].data).length > 0){
-                        let course = responses[i].data
+                        let course = responses[i].data;
                         Object.assign(this.courses, course)
                     } else {
-                        let url_split = responses[i].config.url.split('/')
-                        let courseId = url_split[url_split.length - 1]
+                        let url_split = responses[i].config.url.split('/');
+                        let courseId = url_split[url_split.length - 1];
                         this.$delete(this.selections, courseId)
                     }
                 }
@@ -183,7 +182,6 @@
                     color: "#00bfff",
                 },
                 droppingStart: false
-
             }
         },
         watch: {
@@ -193,34 +191,34 @@
         },
         computed: {
             // add keyCode and event number to course
-            cleanCourse: function(){
-                let courses = JSON.parse(JSON.stringify(this.courses))
+            sanitizeCourse: function(){
+                let courses = JSON.parse(JSON.stringify(this.courses));
                 for (let i=0; i<Object.keys(courses).length;i++){
-                    let keyCode = Object.keys(courses)[i]
-                    let course = courses[keyCode]
-                    course.keyCode = keyCode
+                    let keyCode = Object.keys(courses)[i];
+                    let course = courses[keyCode];
+                    course.keyCode = keyCode;
                     course.event = this.getCourseDataEvent(keyCode)
                 }
                 return courses
             },
             // get all the meeting time, use for check if conflict with some meetings
             allMeetingTime: function() {
-                let times = []
-                Object.values(this.cleanCourse).map(course => {
+                let times = [];
+                Object.values(this.sanitizeCourse).map(course => {
                     Object.keys(course.meetings).forEach(sectionCode => {
                         if (this.selections[course.keyCode].includes(sectionCode)){
-                            let meetings = Object.values(course.meetings[sectionCode].schedule)
+                            let meetings = Object.values(course.meetings[sectionCode].schedule);
                             meetings.map(meeting => {
                                 meeting.section = course.section
-                            })
+                            });
                             times = times.concat(meetings)
                         }
                     })
-                })
+                });
                 return times
             },
             droppingConfig: function () {
-                this.droppingConfigData.image = this.dropping[this.semester]
+                this.droppingConfigData.image = this.dropping[this.semester];
                 return this.droppingConfigData
             }
 
@@ -232,15 +230,15 @@
             },
             getCourseDataEvent: function(courseId){
                 let data_event_id = Object.keys(this.courses_date_event)
-                    .find(data_event_id => this.courses_date_event[data_event_id] === courseId)
+                    .find(data_event_id => this.courses_date_event[data_event_id] === courseId);
                 if (data_event_id){
                     return 'event-' + data_event_id
                 } else {
                     // if there's no such course in courseDataEvent, add one
-                    let i = 1
+                    let i = 1;
                     while (i < 17) {
                         if (!this.courses_date_event[i]){
-                            Vue.set(this.courses_date_event, i, courseId)
+                            Vue.set(this.courses_date_event, i, courseId);
                             return 'event-' + i
                         }
                         i ++;
@@ -259,15 +257,15 @@
                 }).reduce((a,b) => a + b, 0)/2
             },
             openModal: function(headerBoundingBox, contentBoundingBox, keyCode) {
-                this.modalState.course = this.cleanCourse[keyCode]
+                this.modalState.course = this.sanitizeCourse[keyCode];
                 this.modalState.headerBoundingBox = {top: headerBoundingBox.top, left: headerBoundingBox.left,
-                    width: headerBoundingBox.width, height: headerBoundingBox.height}
+                    width: headerBoundingBox.width, height: headerBoundingBox.height};
                 this.modalState.contentBoundingBox = {top: contentBoundingBox.top, left: contentBoundingBox.left,
                     width: contentBoundingBox.width, height: contentBoundingBox.height}
             },
             closeModal: function() {
-                this.modalState.course = null
-                this.modalState.headerBoundingBox = null
+                this.modalState.course = null;
+                this.modalState.headerBoundingBox = null;
                 this.modalState.contentBoundingBox = null
             },
             switchSemester: function(value){
@@ -276,7 +274,7 @@
                 } else {
                     this.semester = 'fall'
                 }
-                this.droppingStart = true
+                this.droppingStart = true;
                 setTimeout(()=>{this.droppingStart = false}, 1000)
             },
             semesterClass: function (semester) {
@@ -301,12 +299,12 @@
                 if (this.courses[Object.keys(course)[0]]){
                     this.sidebarState.focusCourse = Object.keys(course)[0]
                 } else {
-                    let sec = Object.values(course)[0].section
-                    let fallCredit = this.getCredit('F')
-                    let winterCredit = this.getCredit('S')
+                    let sec = Object.values(course)[0].section;
+                    let fallCredit = this.getCredit('F');
+                    let winterCredit = this.getCredit('S');
                     if (sec === 'Y' &&  winterCredit>= 4 && fallCredit >= 4 ||
                         sec !== 'Y' && this.getCredit(sec) >= 4){
-                        let message = "The maximum course load in the Fall/Winter Session is six courses. \n"
+                        let message = "The maximum course load in the Fall/Winter Session is six courses. \n";
 
                         this.$notification.error(message,
                             {   infiniteTimer: true,
@@ -315,17 +313,17 @@
                                 title: 'You already selected 8 courses!'
                             });
                     } else {
-                        Vue.set(this.courses, Object.keys(course)[0], Object.values(course)[0])
+                        Vue.set(this.courses, Object.keys(course)[0], Object.values(course)[0]);
                         Vue.set(this.selections, Object.keys(course)[0], [])
                     }
 
                 }
             },
             unSelectCourse: function (keyCode) {
-                this.$delete(this.selections, keyCode)
-                this.$delete(this.courses, keyCode)
-                let event_id = parseInt(this.getCourseDataEvent(keyCode).split('-')[1])
-                this.$delete(this.courses_date_event, event_id)
+                this.$delete(this.selections, keyCode);
+                this.$delete(this.courses, keyCode);
+                let event_id = parseInt(this.getCourseDataEvent(keyCode).split('-')[1]);
+                this.$delete(this.courses_date_event, event_id);
                 if (this.sidebarState.focusCourse === keyCode){
                     this.sidebarState.focusCourse = null
                 }
@@ -339,7 +337,7 @@
                 })
             },
             getResultValue(result) {
-                let course = Object.values(result)[0]
+                let course = Object.values(result)[0];
                 return course.code.slice(0, 6) + course.section + " " + course.courseTitle
             }
         }
