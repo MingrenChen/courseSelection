@@ -53,16 +53,28 @@
         border-left: 0.1px solid #e6e4e1;
         .cd-schedule__top-info{
             text-align: center;
-            height: $schedule-rows-height;
+            // bigger screen
+            @media screen and (min-width: 400px){
+                height: $schedule-rows-header-height;
+                span {
+                    top: calc(#{$schedule-rows-header-height} / 2 - 10px);
+                }
+            }
+            //mobile device
+            @media screen and (max-width: 400px){
+                height: $schedule-rows-header-height-mobile;
+                span {
+                    top: calc(#{$schedule-rows-header-height-mobile} / 2 - 10px);
+                }
+            }
             span {
                 position: relative;
-                top: calc(#{$schedule-rows-height} / 2 - 10px);
             }
         }
         ul {
             position: relative;
 
-            height: calc(100% - #{$schedule-rows-height});
+            height: calc(100% - #{$schedule-rows-header-height});
         }
     }
 

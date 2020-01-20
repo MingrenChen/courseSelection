@@ -1,11 +1,11 @@
 <template>
     <div class="cd-schedule-modal" :style='this.getStyleWithPx' :data-event='getEvent'>
         <div class="cd-schedule-modal__header" >
-            <span style="font-weight: bold; font-size: large">{{this.course.code + this.course.section}}</span>
-            <span style="font-style: italic; margin-top: 10px">{{this.course.courseTitle}}</span>
-            <div v-for="(times, sec) in sectionTimes" style="margin-top: 10px">
-                <span style="font-size: small">{{sec}}: </span>
-                <span v-for="time in times" style="font-size: smaller; margin-left: 10px">{{time}}</span>
+            <span class="cd-schedule-modal-coursecode">{{this.course.code + this.course.section}}</span>
+            <span class="cd-schedule-modal-coursetitle">{{this.course.courseTitle}}</span>
+            <div class="cd-schedule-modal__coursetime" v-for="(times, sec) in sectionTimes">
+                <span class="cd-schedule-modal__sectiontitle">{{sec}}: </span>
+                <span v-for="time in times" class="cd-schedule-modal__sectiontime">{{time}}</span>
             </div>
 
         </div>
@@ -185,12 +185,58 @@
 
     }
     .cd-schedule-modal__header {
-        width: 20%;
+        // bigger screen
+        @media screen and (min-width: 400px){
+            padding: 1em;
+            width: 20%;
+            .cd-schedule-modal-coursecode{
+                font-weight: bold;
+                font-size: large
+            }
+            .cd-schedule-modal-coursetitle{
+                font-style: italic;
+                margin-top: 10px
+            }
+            .cd-schedule-modal__coursetime {
+                margin-top: 10px;
+                .cd-schedule-modal__sectiontime {
+                    font-size: smaller;
+                    margin-left: 10px;
+                }
+                .cd-schedule-modal__sectiontitle {
+                    font-size: small;
+                }
+            }
+        }
+        //mobile device
+        @media screen and (max-width: 400px){
+            padding: 0.5em;
+            width: 30%;
+            .cd-schedule-modal-coursecode{
+                font-weight: bold;
+                font-size: smaller
+            }
+            .cd-schedule-modal-coursetitle{
+                font-style: italic;
+                margin-top: 3px;
+                font-size: x-small;
+            }
+            .cd-schedule-modal__coursetime {
+                margin-top: 5px;
+                font-size: x-small;
+                .cd-schedule-modal__sectiontime {
+                    font-size: smaller;
+                    margin-left: 5px;
+                }
+                .cd-schedule-modal__sectiontitle {
+                    font-size: small;
+                }
+            }
+        }
         height: 100%;
         align-content: center;
         z-index: 4;
         transform-origin:left top;
-        padding: 1em;
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
         box-sizing: border-box;
@@ -200,17 +246,29 @@
             display: block;
         }
 
+
     }
     .cd-schedule-modal__content {
+        // bigger screen
+        @media screen and (min-width: 400px){
+            width: 80%;
+            left: 20%;
+            padding: 1.5em 1.5em 1em 1em;
+            overflow-y: scroll;
+        }
+        //mobile device
+        @media screen and (max-width: 400px){
+            width: 70%;
+            left: 30%;
+            padding: 0.5em 1em 0.5em 0.5em;
+            overflow-y: scroll;
+        }
         position: absolute;
-        padding: 1.5em 1.5em 1em 1em;
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
         box-sizing: border-box;
         top: 0;
-        left: 20%;
         background: white;
-        width: 80%;
         height: 100%;
         float: right;
         transform-origin:left top;
@@ -219,13 +277,13 @@
         }
     }
 
-
     .modal-body-enter-active, .modal-body-leave-active {
         transition: opacity 0.2s;
     }
     .modal-body-enter, .modal-body-leave-to /* .fade-leave-active below version 2.1.8 */ {
         opacity: 0;
     }
+
 
 
 </style>

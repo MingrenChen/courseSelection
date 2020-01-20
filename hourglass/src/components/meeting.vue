@@ -1,9 +1,9 @@
 <template>
     <li :class="meetingClassList" :style="getStyle" @click="meetingClick" >
         <a :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
-            <strong class="cd-schedule__name" ref="code">{{this.courseCode}}</strong><br>
-            <span style="font-size: small" ref="section">{{this.meeting.selectedSectionId}}</span><br>
-            <em class="cd-schedule__name" v-if="isOverflow()" ref="title">{{this.courseTitle}}</em>
+            <strong class="cd-schedule__name">{{this.courseCode}}</strong><br>
+            <span>{{this.meeting.selectedSectionId}}</span><br>
+            <em class="cd-schedule__name" v-if="isOverflow() && !this.$isMobile">{{this.courseTitle}}</em>
         </a>
     </li>
 </template>
@@ -54,7 +54,12 @@
                 var thisMeeting = this;
                 return this.$parent.$children.filter(e => e!== thisMeeting)
             },
-
+            slotHeight: function () {
+                if (this.$isMobile){
+                    return 55
+                }
+                return 64
+            }
 
         },
         methods: {
@@ -66,9 +71,9 @@
                 if (!this.$parent.$refs.header){
                     return
                 }
-                let slotHeight = this.$parent.$refs.header.offsetHeight;
-                let eventTop = slotHeight*(start - timelineStart)/timelineUnitDuration - 1 + 'px';
-                let eventHeight = slotHeight*duration/timelineUnitDuration + 2 + 'px';
+                // console.log(this.slotHeight,start,timelineStart)
+                let eventTop = this.slotHeight*(start - timelineStart)/timelineUnitDuration - 1 + 'px';
+                let eventHeight = this.slotHeight*duration/timelineUnitDuration + 2 + 'px';
                 let processorTotal = 0;
                 let processor = 0;
                 this.$parent.setSectionToday();
@@ -122,6 +127,23 @@
             overflow: scroll;
             overflow-x: hidden;
             overflow-y: hidden;
+        }
+        //bigger device
+        @media screen and (min-width: 400px){
+
+            span {
+                font-size: small;
+            }
+        }
+        //mobile device
+        @media screen and (max-width: 400px){
+
+            strong {
+                font-size: smaller;
+            }
+            span {
+                font-size: x-small;
+            }
         }
     }
 

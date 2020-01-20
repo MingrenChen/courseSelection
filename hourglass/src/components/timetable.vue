@@ -1,5 +1,5 @@
 <template>
-  <div class="cd-schedule margin-top-lg margin-bottom-lg js-cd-schedule">
+  <div class="cd-schedule margin-top-lg margin-bottom-lg js-cd-schedule" :class="timetableClass">
     <div class="cd-schedule__timeline">
       <ul class="timetable">
         <timeslot v-for="time in times" :time="time"></timeslot>
@@ -7,7 +7,7 @@
     </div>
     <div class="cd-schedule__events">
       <ul >
-        <day v-for="(day, i) in days" :day="day" :semester="semester" :dayshort='daysshort[i]'></day>
+        <day v-for="(day, i) in dayHeaders" :day="day" :semester="semester" :dayshort='daysshort[i]'></day>
       </ul>
     </div>
 
@@ -33,6 +33,12 @@ export default {
     }
   },
   computed: {
+    dayHeaders: function(){
+      if (this.$isMobile){
+        return this.daysshort
+      }
+      return this.days
+    },
     // times is to build the timetable with proper time
     times: function () {
       let timeList = []
@@ -75,6 +81,9 @@ export default {
         })
       }
       return result
+    },
+    timetableClass: function () {
+      return {mobile: this.$isMobile}
     }
   }
 }
@@ -86,49 +95,64 @@ export default {
     --font-primary: 'Source Sans Pro', sans-serif;
   }
 
-  .cd-schedule {
+  .cd-schedule:not(.mobile){
     width: calc(100% - #{$sidenav-width} - 15px);
     max-width: calc(100% - #{$sidenav-width} - 15px);
     position: relative;
     height: calc(#{$schedule-rows-number + 1} * #{$schedule-rows-height});
     left: calc(#{$sidenav-width} + 15px);
+  }
 
-    .cd-schedule__timeline {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      padding-top: $schedule-rows-height;
+  .cd-schedule.mobile{
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    height: calc(#{$schedule-rows-number + 1} * #{$schedule-rows-height-mobile});
 
-      ul {
-        padding-left: 0;
-        margin-top: 0;
-      }
+  }
 
-      .timetable {
-        display: block;
-      }
+  .cd-schedule__timeline {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    // bigger screen
+    @media screen and (min-width: 400px){
+      padding-top: $schedule-rows-header-height;
+    }
+    //mobile device
+    @media screen and (max-width: 400px){
+      padding-top: $schedule-rows-header-height-mobile;
     }
 
-
-    .cd-schedule__events {
-      position: relative;
-      width: calc(100% - 60px);
-      margin-left: 60px;
+    ul {
+      padding-left: 0;
+      margin-top: 0;
       height: 100%;
+    }
 
-      ul {
-        padding-left: 0;
-        display: flex;
-        flex-wrap: nowrap;
-        height: 100%;
-        border-right: 0.1px solid #e6e4e1;
-        border-top: 0.1px solid #e6e4e1;
-
-      }
+    .timetable {
+      display: block;
     }
   }
 
+
+  .cd-schedule__events {
+    position: relative;
+    width: calc(100% - 60px);
+    margin-left: 60px;
+    height: 100%;
+
+    ul {
+      padding-left: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      height: 100%;
+      border-right: 0.1px solid #e6e4e1;
+      border-top: 0.1px solid #e6e4e1;
+
+    }
+  }
 </style>

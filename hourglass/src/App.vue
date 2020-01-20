@@ -4,27 +4,9 @@
             <Snowf v-if="droppingStart"
                     v-bind="droppingConfig" />
         </transition>
-        <div id="searchArea">
-            <div class="cd-sidenav__semester">
-                <div class="cd-sidenav__semester-toggle">
-                    <i class="fab fa-canadian-maple-leaf fa-2x" :class="semesterClass('fall')"></i>
-                    <div id="fall" :class="semesterClass('fall')">Fall</div>
-                    <toggle-button
-                            :color="{checked: 'deepskyblue', unchecked: 'rgb(242, 122, 41)'}"
-                            @change="switchSemester"
-                    ></toggle-button>
-                    <div id="winter" :class="semesterClass('winter')">Winter</div>
-                    <i class="fas fa-snowflake fa-2x" :class="semesterClass('winter')"></i>
-                </div>
-            </div>
+        <appheader></appheader>
 
-            <Autocomplete :search="search"
-                          :get-result-value="getResultValue"
-                          @submit="selectCourse"
-            ></Autocomplete>
-        </div>
-
-        <sidebar v-if="sidebarState.showSidebar && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
+        <sidebar v-if="!$isMobile && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
                  :selections="this.selections">
         </sidebar>
 
@@ -40,7 +22,6 @@
 </template>
 
 <script>
-    import { ToggleButton } from 'vue-js-toggle-button'
     import timetable from './components/timetable.vue'
     import modal from './components/modal.vue'
     import EventBus from './assets/js/EventBus.js'
@@ -48,15 +29,21 @@
     import axios from 'axios'
     import Vue from 'vue'
     import VueCookies from 'vue-cookies'
-    // autocomplete for search bar
-    import Autocomplete from '@trevoreyre/autocomplete-vue'
-    import '@trevoreyre/autocomplete-vue/dist/style.css'
+
     // notification message
     import VueNotification from "@kugatsu/vuenotification";
     // animation when change semester
     import Snowf from 'vue-snowf';
     import snowpick from './assets/image/snow.png'
     import mapleleaf from './assets/image/mapleleaf.png'
+    import VueGlobalVariable from 'vue-global-var'
+    import Appheader from "./components/appheader";
+
+    Vue.use(VueGlobalVariable, {
+        globals: {
+            $isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+        }
+    });
 
     Vue.use(VueNotification, {
         primary: {
@@ -67,30 +54,35 @@
         }
     });
 
-    Vue.use(Autocomplete);
     Vue.use(VueCookies);
     Vue.$cookies.config('1y');
 
     export default {
         name: 'app',
         components: {
+            Appheader,
             sidebar,
             timetable,
             modal,
-            Autocomplete,
-            ToggleButton,
-            Snowf
+            Snowf,
+            Appheader
         },
+
         created() {
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
         },
         mounted() {
             EventBus.$on('meetingClick', courseID => {
-                if (this.sidebarState.focusCourse !== courseID){
-                    this.sidebarState.focusCourse = courseID
+                if (!this.$isMobile) {
+                    if (this.sidebarState.focusCourse !== courseID){
+                        this.sidebarState.focusCourse = courseID
+                    } else {
+                        this.sidebarState.focusCourse = null
+                    }
                 } else {
-                    this.sidebarState.focusCourse = null
+                    let config = {top: 0, height: 0, left: 0, width: 0}
+                    EventBus.$emit('openModal', config, config, courseID)
                 }
             });
             EventBus.$on('selectSection', info => {
@@ -109,6 +101,15 @@
             EventBus.$on('removeCourse', keyCode => {
                 this.unSelectCourse(keyCode)
             });
+            EventBus.$on('selectCourse', course => {
+                this.selectCourse(course)
+                let keyCode = Object.keys(course)[0]
+                if (this.$isMobile){
+                    // if is mobile device, open modal directly
+                    let config = {top: 0, height: 0, left: 0, width: 0}
+                    EventBus.$emit('openModal', config, config, keyCode)
+                }
+            })
 
             // get selections from cookie.
             if (Vue.$cookies.isKey('selections')){
@@ -138,7 +139,6 @@
             }).catch(error => {
                 console.log(error)
             })
-
 
         },
         destroyed() {
@@ -220,7 +220,8 @@
             droppingConfig: function () {
                 this.droppingConfigData.image = this.dropping[this.semester];
                 return this.droppingConfigData
-            }
+            },
+
 
         },
         methods: {
@@ -277,9 +278,7 @@
                 this.droppingStart = true;
                 setTimeout(()=>{this.droppingStart = false}, 1000)
             },
-            semesterClass: function (semester) {
-                return {'semester-not-selected': this.semester !== semester}
-            },
+
 
             selectSection: function(courseID, sectionID) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
@@ -330,16 +329,7 @@
             },
 
 
-            // the following 2 methods are for search and autocomplete
-            search: function (input) {
-                return axios.get('http://localhost:2000/getautocomplete/' + input).then(response => {
-                    return response.data
-                })
-            },
-            getResultValue(result) {
-                let course = Object.values(result)[0];
-                return course.code.slice(0, 6) + course.section + " " + course.courseTitle
-            }
+
         }
     }
 </script>
@@ -354,6 +344,7 @@
         font-family: 'Open Sans', sans-serif;
         font-weight: lighter;
         height: 100%;
+        width: 97%;
         box-sizing: border-box;
     }
 
@@ -366,71 +357,7 @@
         height: 100%;
     }
 
-    #searchArea {
-        height: $schedule-search-height;
-        .autocomplete {
-            width: 25%;
-            position: absolute;
-            left: 70%;
-            z-index: 3;
-        }
 
-        .cd-sidenav__semester{
-            position: absolute;
-            width: max-content;
-            left: calc(#{$sidenav-width} + 40px);
-            top: 20px;
-            .cd-sidenav__semester-toggle {
-                width: max-content;
-                text-align: center;
-                margin: 0 auto;
-                display: flex;
-                label {
-                    margin-top: 3px;
-                }
-            }
-
-            .semester-not-selected {
-                opacity: 0.6;
-                background: #cccccc !important;
-                -webkit-background-clip: text !important;
-                -webkit-text-fill-color: transparent !important;
-            }
-
-            #winter{
-                font-size: larger;
-                background: linear-gradient(deepskyblue, #8eedfa);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                margin-left: 5px;
-            }
-
-            .fa-snowflake {
-                background: linear-gradient(deepskyblue, #8eedfa);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                display: initial; /* reset Font Awesome's display:inline-block */
-                margin-left: 5px;
-            }
-
-
-            .fa-canadian-maple-leaf {
-                background: linear-gradient(rgb(255, 0, 0), rgb(255, 163, 59));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                display: initial; /* reset Font Awesome's display:inline-block */
-                margin-right: 5px;
-            }
-
-            #fall{
-                font-size: larger;
-                background: linear-gradient(rgb(255, 0, 0), rgb(255, 163, 59));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                margin-right: 5px;
-            }
-        }
-    }
 
     @for $i from 1 through 16 {
 
@@ -477,4 +404,5 @@
         /* .fade-leave-active below version 2.1.8 */
     {
         opacity: 0;
-    }</style>
+    }
+</style>

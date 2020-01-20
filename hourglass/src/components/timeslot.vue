@@ -13,12 +13,23 @@ export default {
 <style scoped lang="scss">
   @import "../assets/css/variable.scss";
 
+  span{
+    font-size: small;
+  }
+
   li {
     display: list-item;
     list-style-position:inside;
     border-top: 0.1px solid #e6e4e1;
     position: relative;
-    height: $schedule-rows-height;
+    //bigger device
+    @media screen and (min-width: 400px){
+      height: $schedule-rows-height;
+    }
+    //mobile device
+    @media screen and (max-width: 400px){
+      height: $schedule-rows-height-mobile;
+    }
   }
 
   .cd-schedule__group {
@@ -27,8 +38,14 @@ export default {
     -webkit-overflow-scrolling: touch;
     overflow: visible;
     padding: 0;
-    height: calc(#{$schedule-rows-number} * #{$schedule-rows-height});
-
+    // bigger screen
+    @media screen and (min-width: 400px){
+      height: calc(#{$schedule-rows-number} * #{$schedule-rows-height});
+    }
+    //mobile device
+    @media screen and (max-width: 400px){
+      height: calc(#{$schedule-rows-number} * #{$schedule-rows-height-mobile});
+    }
 
   }
 
