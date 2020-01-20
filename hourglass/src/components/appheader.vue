@@ -56,7 +56,7 @@
             },
             // the following 2 methods are for search and autocomplete
             search: function (input) {
-                return axios.get('http://localhost:2000/getautocomplete/' + input).then(response => {
+                return axios.get('http://www.talentgroup.agency:2000/getautocomplete/' + input).then(response => {
                     return response.data
                 })
             },

@@ -122,7 +122,7 @@
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
             let requests = [];
             Object.keys(this.selections).forEach(courseID => {
-                requests.push(axios.get('http://localhost:2000/course/' + courseID))
+                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseID))
             });
             axios.all(requests).then(responses => {
                 for (let i=0;i<responses.length; i++){
