@@ -23,7 +23,7 @@
                         <label><strong>Practice: </strong></label>
                         <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
-                    <button @click="openModal()">detail</button>
+                    <div class="sidebar-course-detail" @click="openModal()"><img src="https://img.icons8.com/offices/20/000000/details-pane.png">detail</div>
                 </div>
             </transition>
         </div>
@@ -127,6 +127,19 @@
 
 <style scoped lang="scss">
     @import "../assets/css/variable.scss";
+    .sidebar-course-detail {
+        background: white;
+        color: #76c2f5;
+        width: max-content;
+        margin-left: 70%;
+        padding: 1px 5px ;
+        margin-top: 10px;
+        cursor: pointer;
+        img {
+            vertical-align: -5px;
+            margin-right: 5px;
+        }
+    }
     .sidebar-show-course{
         height: auto;
         box-shadow: 5px 0px 5px rgba(1, 0, 0, 0.2);
@@ -146,6 +159,7 @@
         top: 0;
         box-sizing: border-box;
         float: left;
+        cursor: pointer;
     }
 
     .sidebar-course-title:hover {

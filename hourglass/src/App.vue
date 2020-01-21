@@ -185,6 +185,7 @@
             }
         },
         watch: {
+            // when selections change, we save it to cookie
             selections: function () {
                 Vue.$cookies.set('selections', this.selections)
             }
@@ -217,6 +218,7 @@
                 });
                 return times
             },
+            // config for the dropping maple leaf or snow pick
             droppingConfig: function () {
                 this.droppingConfigData.image = this.dropping[this.semester];
                 return this.droppingConfigData
@@ -229,6 +231,7 @@
                 this.window.width = window.innerWidth;
                 this.window.height = window.innerHeight
             },
+            // we use data event tag for color of each course. We need to add event to this.course
             getCourseDataEvent: function(courseId){
                 let data_event_id = Object.keys(this.courses_date_event)
                     .find(data_event_id => this.courses_date_event[data_event_id] === courseId);
@@ -269,7 +272,7 @@
                 this.modalState.headerBoundingBox = null;
                 this.modalState.contentBoundingBox = null
             },
-            switchSemester: function(value){
+            switchSemester: function(){
                 if (this.semester === 'fall') {
                     this.semester = 'winter'
                 } else {
@@ -360,13 +363,15 @@
 
 
     @for $i from 1 through 16 {
-
         .cd-schedule__event [data-event=#{"event-" + $i}],
         .sidebar-header[data-event=#{"event-" + $i}],
         .cd-schedule-modal[data-event=#{"event-" + $i}] .cd-schedule-modal__header {
             background:  nth($colors, $i)
         }
     }
+
+
+
     .cd-schedule__cover-layer {
         // layer between the content and the modal window
         position: fixed;

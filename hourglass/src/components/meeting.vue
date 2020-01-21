@@ -95,39 +95,45 @@
                 //accepts hh:mm format - convert hh:mm to timestamp
                 time = time.replace(/ /g,'');
                 let timeArray = time.split(':');
-                return parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]);;
+                return parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]);
             },
             meetingClick: function () {
-                this.snap()
-                // EventBus.$emit('meetingClick', this.meeting.keyCode);
-                this.showCurrentMeeting = false;
+                EventBus.$emit('meetingClick', this.meeting.keyCode);
+
             },
             isOverflow: function () {
-                let start = this.getScheduleTimestamp(this.meeting.meetingStartTime)
+                let start = this.getScheduleTimestamp(this.meeting.meetingStartTime);
                 let end = this.getScheduleTimestamp(this.meeting.meetingEndTime);
-                let processorTotal = this.meeting.processorTotal
+                let processorTotal = this.meeting.processorTotal;
                 return (end - start) > 60 && processorTotal === 1
             },
             snap: function () {
                 html2canvas(this.$el).then(response => {
-                    response.style.top = this.getStyle.top
-                    console.log(this.getStyle)
                     let {width, height} = response;
                     const ctx = response.getContext("2d");
                     const originalData = ctx.getImageData(0, 0, width, height);
-                    
-                    this.$el.appendChild(response)
-                    // response.style.height =
-                    // for (let x = 0; x < width; ++x) {
+
+                    // this.$el.appendChild(response);
+                    // console.log(originalData, width, height);
+                    //
+                    // for (let x = 0; x < width * 4; x+=2) {
                     //     for (let y = 0; y < height; ++y) {
                     //         // show block pixel or original pixel
                     //         // 这里的 i 决定像素密度（相当于把每一个像素分布到几个 canvas 上）
-                    //         for (let i = 0; i < 4; i++) {
-                    //             // console.log('(' + imageDatas.data[y * width + x], imageDatas.data[y * width + x + 1],imageDatas.data[y * width + x+2],imageDatas.data[y * width + x + 3], ')')
-                    //         }
+                    //         let data = originalData.data;
+                    //         let r = y * (width * 4) + x * 4;
+                    //         let g = r + 1;
+                    //         let b = g + 1;
+                    //         let a = b + 1;
+                    //         data[r] = 255
+                    //         // for (let i = 0; i < 4; i++) {
+                    //         //
+                    //         // }
                     //     }
                     // }
+                    // this.showCurrentMeeting = false;
                 })
+
             }
         },
     }

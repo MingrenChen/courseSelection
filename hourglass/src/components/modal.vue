@@ -301,7 +301,7 @@
         color: #76c2f5;
         margin-top: 10px;
         margin-left: 100px;
-        /*background: #76c2f5;*/
+        cursor: pointer;
     }
 
 
