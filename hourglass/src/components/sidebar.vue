@@ -11,12 +11,13 @@
                                 :course="course" :selections="selectedSections(course)"></sidebar-course>
             </ul>
         </div>
+        <download></download>
     </div>
 
 </template>
 
 <script>
-
+    import download from "./download";
     export default {
         name: "sidebar",
         props: ['courses', 'selections', 'sidebarState'],
@@ -26,6 +27,7 @@
         },
         components: {
             'sidebar-course': require('./sidebar-course').default,
+            download
         },
         methods: {
             selectedSections: function (course) {

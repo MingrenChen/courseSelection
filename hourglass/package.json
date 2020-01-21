@@ -10,8 +10,10 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
     "axios": "^0.19.1",
+    "chance": "^1.1.4",
     "core-js": "^3.4.3",
     "gsap": "^3.0.4",
+    "html2canvas": "^1.0.0-rc.5",
     "jquery": "^3.4.1",
     "vue": "^2.6.10",
     "vue-cookies": "^1.6.1",

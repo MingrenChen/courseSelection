@@ -2,7 +2,7 @@
     <li class="cd-schedule__group">
         <div class="cd-schedule__top-info" ref=header><span>{{this.day}}</span></div>
          <ul>
-            <meeting v-for="(meeting) in sectionToday" :meeting="meeting"></meeting>
+             <meeting v-for="(meeting) in sectionToday" :meeting="meeting" :key="meeting.meetingScheduleId"></meeting>
          </ul>
     </li>
 </template>
@@ -50,7 +50,9 @@
         flex-basis: 0;
         flex-grow: 1;
         margin-bottom: 0;
-        border-left: 0.1px solid #e6e4e1;
+        border-width: 0 0 0 1px;
+        border-style: solid;
+        border-color: #e6e4e1;
         .cd-schedule__top-info{
             text-align: center;
             // bigger screen

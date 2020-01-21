@@ -10,7 +10,7 @@
 
         </div>
         <div class="cd-schedule-modal__content">
-            <i class="fas fa-times" @click="closeModal()"></i>
+<!--            <i class="fas fa-times" @click="closeModal()"></i>-->
             <div>
                 <span style="font-size: small; font-weight: bold" v-html="this.course.courseDescription">
                     {{this.course.courseDescription}}
@@ -41,6 +41,10 @@
                                    :section=key :course="course['keyCode']"
                                    :selections="selections"
                                    :all-meeting-time="allMeetingTime" :enable-hover="false"></sectionbutton>
+                </div>
+                <div v-if="this.$isMobile" class="remove-course" @click="removeCourse()">
+                    <img src="https://img.icons8.com/ultraviolet/20/000000/delete.png">
+                    Remove
                 </div>
             </div>
         </div>
@@ -168,6 +172,10 @@
             },
             getRelationCourses: function (relation) {
                 return this.course[relation]
+            },
+            removeCourse: function () {
+                EventBus.$emit('removeCourse', this.course.keyCode)
+                EventBus.$emit('closeModal')
             }
         },
     }
@@ -283,7 +291,18 @@
     .modal-body-enter, .modal-body-leave-to /* .fade-leave-active below version 2.1.8 */ {
         opacity: 0;
     }
-
+    .remove-course {
+        img{
+            vertical-align: middle;
+            color: white;
+        }
+        width: max-content;
+        padding: 1px 5px ;
+        color: #76c2f5;
+        margin-top: 10px;
+        margin-left: 100px;
+        /*background: #76c2f5;*/
+    }
 
 
 </style>

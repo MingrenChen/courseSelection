@@ -20,7 +20,9 @@ export default {
   li {
     display: list-item;
     list-style-position:inside;
-    border-top: 0.1px solid #e6e4e1;
+    border-width: 1px 0 0 0;
+    border-style: solid;
+    border-color: #e6e4e1;
     position: relative;
     //bigger device
     @media screen and (min-width: 400px){

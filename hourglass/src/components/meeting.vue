@@ -1,6 +1,6 @@
 <template>
     <li :class="meetingClassList" :style="getStyle" @click="meetingClick" >
-        <a :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
+        <a v-if="showCurrentMeeting" :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
             <strong class="cd-schedule__name">{{this.courseCode}}</strong><br>
             <span>{{this.meeting.selectedSectionId}}</span><br>
             <em class="cd-schedule__name" v-if="isOverflow() && !this.$isMobile">{{this.courseTitle}}</em>
@@ -9,7 +9,10 @@
 </template>
 
 <script>
+    import gsap from 'gsap'
     import EventBus from '../assets/js/EventBus.js'
+    import html2canvas from 'html2canvas'
+
     export default {
         name: "meeting",
         props: ['meeting'],
@@ -18,13 +21,13 @@
                 selected: false,
                 style: {},
                 meetingClassList: ['cd-schedule__event'],
-                hideTitle: false
+                hideTitle: false,
+                showCurrentMeeting: true
             }
         },
         mounted: function () {
             this.setupStyle();
             this.siblingMeetings.forEach(sibling => sibling.setupStyle())
-
         },
         destroyed: function(){
             this.siblingMeetings.forEach(sibling => sibling.setupStyle())
@@ -54,11 +57,12 @@
                 var thisMeeting = this;
                 return this.$parent.$children.filter(e => e!== thisMeeting)
             },
+            // slot is a little bigger than height in css because the border
             slotHeight: function () {
                 if (this.$isMobile){
-                    return 55
+                    return 56
                 }
-                return 64
+                return 65
             }
 
         },
@@ -73,7 +77,7 @@
                 }
                 // console.log(this.slotHeight,start,timelineStart)
                 let eventTop = this.slotHeight*(start - timelineStart)/timelineUnitDuration - 1 + 'px';
-                let eventHeight = this.slotHeight*duration/timelineUnitDuration + 2 + 'px';
+                let eventHeight = this.slotHeight*duration/timelineUnitDuration + 'px';
                 let processorTotal = 0;
                 let processor = 0;
                 this.$parent.setSectionToday();
@@ -83,7 +87,7 @@
                         processor = this.$parent.sectionToday[i]['processor']
                     }
                 }
-                let eventWidth = 100/processorTotal;
+                let eventWidth = 100/processorTotal + 1;
                 let eventLeft = eventWidth * (processor - 1) + '%';
                 this.style = {'top': eventTop, 'height': eventHeight, 'width': eventWidth + "%", 'left': eventLeft};
             },
@@ -94,13 +98,36 @@
                 return parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]);;
             },
             meetingClick: function () {
-                EventBus.$emit('meetingClick', this.meeting.keyCode);
+                this.snap()
+                // EventBus.$emit('meetingClick', this.meeting.keyCode);
+                this.showCurrentMeeting = false;
             },
             isOverflow: function () {
                 let start = this.getScheduleTimestamp(this.meeting.meetingStartTime)
                 let end = this.getScheduleTimestamp(this.meeting.meetingEndTime);
                 let processorTotal = this.meeting.processorTotal
                 return (end - start) > 60 && processorTotal === 1
+            },
+            snap: function () {
+                html2canvas(this.$el).then(response => {
+                    response.style.top = this.getStyle.top
+                    console.log(this.getStyle)
+                    let {width, height} = response;
+                    const ctx = response.getContext("2d");
+                    const originalData = ctx.getImageData(0, 0, width, height);
+                    
+                    this.$el.appendChild(response)
+                    // response.style.height =
+                    // for (let x = 0; x < width; ++x) {
+                    //     for (let y = 0; y < height; ++y) {
+                    //         // show block pixel or original pixel
+                    //         // 这里的 i 决定像素密度（相当于把每一个像素分布到几个 canvas 上）
+                    //         for (let i = 0; i < 4; i++) {
+                    //             // console.log('(' + imageDatas.data[y * width + x], imageDatas.data[y * width + x + 1],imageDatas.data[y * width + x+2],imageDatas.data[y * width + x + 3], ')')
+                    //         }
+                    //     }
+                    // }
+                })
             }
         },
     }

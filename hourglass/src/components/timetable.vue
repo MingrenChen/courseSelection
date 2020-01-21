@@ -150,8 +150,9 @@ export default {
       display: flex;
       flex-wrap: nowrap;
       height: 100%;
-      border-right: 0.1px solid #e6e4e1;
-      border-top: 0.1px solid #e6e4e1;
+      border-style: solid;
+      border-color: #e6e4e1;
+      border-width: 1px 1px 0 0;
 
     }
   }
