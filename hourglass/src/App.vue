@@ -270,7 +270,15 @@
             closeModal: function() {
                 this.modalState.course = null;
                 this.modalState.headerBoundingBox = null;
-                this.modalState.contentBoundingBox = null
+                this.modalState.contentBoundingBox = null;
+                if (this.$isMobile){
+                    let emptyCourse = Object.keys(this.selections).filter(
+                        key => this.selections[key].length === 0
+                    )
+                    emptyCourse.forEach(course => {
+                        this.unSelectCourse(course)
+                    })
+                }
             },
             switchSemester: function(){
                 if (this.semester === 'fall') {
