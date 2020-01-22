@@ -1,5 +1,7 @@
 <template>
     <div id="searchArea">
+        <navigator></navigator>
+<!--        <img src="https://img.icons8.com/officel/25/000000/menu.png">-->
         <div class="cd-sidenav__semester">
             <div class="cd-sidenav__semester-toggle">
                 <i class="fab fa-canadian-maple-leaf" :class="semesterClass('fall')"></i>
@@ -29,13 +31,14 @@
     import EventBus from "../assets/js/EventBus";
     Vue.use(Autocomplete);
     import axios from 'axios'
-
+    import navigator from "./navigator";
 
     export default {
         name: "appheader",
         components: {
             ToggleButton,
-            Autocomplete
+            Autocomplete,
+            navigator
         },
         computed: {
             toggleConfig: function () {
@@ -101,9 +104,9 @@
             }
             @media screen and (max-width: 400px) {
                 position: absolute;
-                width: 40%;
+                width: 55%;
                 top: 5px;
-                left: 55%;
+                left: 45%;
                 z-index: 3;
                 height: $schedule-search-height-mobile;
                 .autocomplete-input {
@@ -127,7 +130,7 @@
             @media screen and (max-width: 400px){
                 position: absolute;
                 width: max-content;
-                left: 10%;
+                left: 13%;
                 top: 20px;
             }
 
@@ -171,6 +174,11 @@
                 -webkit-text-fill-color: transparent;
                 display: initial; /* reset Font Awesome's display:inline-block */
                 margin-left: 5px;
+                //mobile device
+                @media screen and (max-width: 400px){
+                    // hide on mobile
+                    display: none;
+                }
             }
 
 
@@ -180,6 +188,11 @@
                 -webkit-text-fill-color: transparent;
                 display: initial; /* reset Font Awesome's display:inline-block */
                 margin-right: 5px;
+                //mobile device
+                @media screen and (max-width: 400px){
+                    // hide on mobile
+                    display: none;
+                }
             }
 
             #fall{

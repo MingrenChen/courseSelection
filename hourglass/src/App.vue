@@ -18,6 +18,7 @@
         <transition name="cover">
             <div v-if="modalState.course !== null" class="cd-schedule__cover-layer" @click="closeModal"></div>
         </transition>
+        <div v-if="showDropdownCover" class="cd-schedule__dropdown-cover-layer" @click="closeDropdown"></div>
     </div>
 </template>
 
@@ -48,9 +49,11 @@
     Vue.use(VueNotification, {
         primary: {
             background: "#85c0ff",
+            color: 'white'
         },
         error: {
-            background: "#c73232"
+            background: "#c73232",
+            color: 'white'
         }
     });
 
@@ -73,6 +76,10 @@
             this.handleResize();
         },
         mounted() {
+            // EventBus is to receive and sending request between different
+            // vue component. Receiving mostly in App.vue
+
+            // meetingClick happened when user click on the meeting
             EventBus.$on('meetingClick', courseID => {
                 if (!this.$isMobile) {
                     if (this.sidebarState.focusCourse !== courseID){
@@ -81,16 +88,19 @@
                         this.sidebarState.focusCourse = null
                     }
                 } else {
-                    let config = {top: 0, height: 0, left: 0, width: 0}
+                    let config = {top: 0, height: 0, left: 0, width: 0};
                     EventBus.$emit('openModal', config, config, courseID)
                 }
             });
+
+            // to receive signal to select/unselect a section
             EventBus.$on('selectSection', info => {
                 this.selectSection(info.courseID, info.sectionID)
             });
             EventBus.$on('unselectSection', info => {
                 this.unSelectSection(info.courseID, info.sectionID)
             });
+
             // bounding box is for animation, where the color column come from.
             EventBus.$on('openModal', (headerBoundingBox, contentBoundingBox, keyCode) => {
                 this.openModal(headerBoundingBox, contentBoundingBox, keyCode)
@@ -98,18 +108,31 @@
             EventBus.$on('closeModal', ()=>{
                 this.closeModal()
             });
+
+            // to select or unselect a course
             EventBus.$on('removeCourse', keyCode => {
                 this.unSelectCourse(keyCode)
             });
             EventBus.$on('selectCourse', course => {
-                this.selectCourse(course)
-                let keyCode = Object.keys(course)[0]
+                this.selectCourse(course);
+                let keyCode = Object.keys(course)[0];
                 if (this.$isMobile){
                     // if is mobile device, open modal directly
-                    let config = {top: 0, height: 0, left: 0, width: 0}
+                    let config = {top: 0, height: 0, left: 0, width: 0};
                     EventBus.$emit('openModal', config, config, keyCode)
                 }
-            })
+            });
+            EventBus.$on('emptyCourses', ()=>{
+                Object.keys(this.selections).map(keyCode => {
+                    this.unSelectCourse(keyCode)
+                });
+                this.$cookies.remove('selections')
+            });
+
+
+            EventBus.$on('openDropdownCover', ()=>{
+                this.showDropdownCover = true
+            });
 
             // get selections from cookie.
             if (Vue.$cookies.isKey('selections')){
@@ -170,6 +193,7 @@
                     height: 0
                 },
                 courses: {},
+                showDropdownCover: false,
                 dropping: {'fall': mapleleaf, 'winter': snowpick},
                 droppingConfigData: {
                     size: 20,
@@ -218,6 +242,8 @@
                 });
                 return times
             },
+
+
             // config for the dropping maple leaf or snow pick
             droppingConfig: function () {
                 this.droppingConfigData.image = this.dropping[this.semester];
@@ -260,6 +286,11 @@
                     return 0
                 }).reduce((a,b) => a + b, 0)/2
             },
+            // when click on cover layer for dropdown, close drop down in navigator
+            closeDropdown: function(){
+                EventBus.$emit("closeDropdown");
+                this.showDropdownCover = false
+            },
             openModal: function(headerBoundingBox, contentBoundingBox, keyCode) {
                 this.modalState.course = this.sanitizeCourse[keyCode];
                 this.modalState.headerBoundingBox = {top: headerBoundingBox.top, left: headerBoundingBox.left,
@@ -274,7 +305,7 @@
                 if (this.$isMobile){
                     let emptyCourse = Object.keys(this.selections).filter(
                         key => this.selections[key].length === 0
-                    )
+                    );
                     emptyCourse.forEach(course => {
                         this.unSelectCourse(course)
                     })
@@ -407,15 +438,18 @@
     }
 
 
-    .dropping-enter-active,
-    .dropping-leave-active {
-        transition: opacity .5s;
+    .cd-schedule__dropdown-cover-layer {
+        // layer between the content and the dropdown
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 1;
     }
 
-    .dropping-enter,
-    .dropping-leave-to
-        /* .fade-leave-active below version 2.1.8 */
-    {
-        opacity: 0;
-    }
+
+
+
 </style>
