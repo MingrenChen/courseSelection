@@ -23,7 +23,7 @@
                 <div class='LEC' v-if='this.getSectionWithTeachingMethod("LEC").length > 0'>
                     <label><strong>Lecture:</strong></label>
                     <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")'
-                                   :section=key :course="course['keyCode']"
+                                   :section=key :course="course['courseId']"
                                    :selections="selections"
                                    :all-meeting-time="allMeetingTime"
                                     :enable-hover="false"></sectionbutton>
@@ -31,14 +31,14 @@
                 <div class='TUT' v-if='this.getSectionWithTeachingMethod("TUT").length > 0'>
                     <label><strong>Tutorial: </strong></label>
                     <sectionbutton v-for='key in this.getSectionWithTeachingMethod("TUT")'
-                                   :section=key :course="course['keyCode']"
+                                   :section=key :course="course['courseId']"
                                    :selections="selections"
                                    :all-meeting-time="allMeetingTime" :enable-hover="false"></sectionbutton>
                 </div>
                 <div class='PRA' v-if='this.getSectionWithTeachingMethod("PRA").length > 0'>
                     <label><strong>Practice: </strong></label>
                     <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")'
-                                   :section=key :course="course['keyCode']"
+                                   :section=key :course="course['courseId']"
                                    :selections="selections"
                                    :all-meeting-time="allMeetingTime" :enable-hover="false"></sectionbutton>
                 </div>
@@ -174,7 +174,7 @@
                 return this.course[relation]
             },
             removeCourse: function () {
-                EventBus.$emit('removeCourse', this.course.keyCode)
+                EventBus.$emit('removeCourse', this.course.courseId)
                 EventBus.$emit('closeModal')
             }
         },
@@ -194,7 +194,7 @@
     }
     .cd-schedule-modal__header {
         // bigger screen
-        @media screen and (min-width: 400px){
+        @media screen and (min-width: 500px){
             padding: 1em;
             width: 20%;
             .cd-schedule-modal-coursecode{
@@ -217,7 +217,7 @@
             }
         }
         //mobile device
-        @media screen and (max-width: 400px){
+        @media screen and (max-width: 500px){
             padding: 0.5em;
             width: 30%;
             .cd-schedule-modal-coursecode{
@@ -258,14 +258,14 @@
     }
     .cd-schedule-modal__content {
         // bigger screen
-        @media screen and (min-width: 400px){
+        @media screen and (min-width: 500px){
             width: 80%;
             left: 20%;
             padding: 1.5em 1.5em 1em 1em;
             overflow-y: scroll;
         }
         //mobile device
-        @media screen and (max-width: 400px){
+        @media screen and (max-width: 500px){
             width: 70%;
             left: 30%;
             padding: 0.5em 1em 0.5em 0.5em;

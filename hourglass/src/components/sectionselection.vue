@@ -12,15 +12,15 @@
                 <div v-if="this.getter('exclusion')"><strong>Exclusions: </strong>{{this.getter('exclusion')}}</div>
                 <div class='LEC' v-if='this.getSectionWithTeachingMethod("LEC").length > 0'>
                     <label><strong>Lecture:</strong></label>
-                   <section-button v-for='key in this.getSectionWithTeachingMethod("LEC")' :sectionid=key :course="getter('keyCode')" :btnreload="btnreload"></section-button>
+                   <section-button v-for='key in this.getSectionWithTeachingMethod("LEC")' :sectionid=key :course="getter('courseId')" :btnreload="btnreload"></section-button>
                 </div>
                 <div class='TUT' v-if='this.getSectionWithTeachingMethod("TUT").length > 0'>
                     <label><strong>Tutorial: </strong></label>
-                    <section-button v-for='key in this.getSectionWithTeachingMethod("TUT")' :sectionid=key :course="getter('keyCode')" :btnreload="btnreload"></section-button>
+                    <section-button v-for='key in this.getSectionWithTeachingMethod("TUT")' :sectionid=key :course="getter('courseId')" :btnreload="btnreload"></section-button>
                     </div>
                 <div class='PRA' v-if='this.getSectionWithTeachingMethod("PRA").length > 0'>
                     <label><strong>Practice: </strong></label>
-                    <section-button v-for='key in this.getSectionWithTeachingMethod("PRA")' :sectionid=key :course="getter('keyCode')" :btnreload="btnreload"></section-button>
+                    <section-button v-for='key in this.getSectionWithTeachingMethod("PRA")' :sectionid=key :course="getter('courseId')" :btnreload="btnreload"></section-button>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
             },
             courseid: function () {
                 if (this.courses) {
-                    return this.courses.keyCode
+                    return this.courses.courseId
                 }
             }
         },

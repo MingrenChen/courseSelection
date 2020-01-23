@@ -88,21 +88,21 @@
     @import "../assets/css/variable.scss";
 
     #searchArea {
-        @media screen and (min-width: 400px){
+        @media screen and (min-width: 500px){
             height: $schedule-search-height;
         }
-        @media screen and (max-width: 400px) {
+        @media screen and (max-width: 500px) {
             height: $schedule-search-height-mobile;
         }
 
         .autocomplete {
-            @media screen and (min-width: 400px){
+            @media screen and (min-width: 500px){
                 width: 25%;
                 position: absolute;
                 left: 70%;
                 z-index: 3;
             }
-            @media screen and (max-width: 400px) {
+            @media screen and (max-width: 500px) {
                 position: absolute;
                 width: 55%;
                 top: 5px;
@@ -121,13 +121,13 @@
 
         .cd-sidenav__semester{
 
-            @media screen and (min-width: 400px){
+            @media screen and (min-width: 500px){
                 position: absolute;
                 width: max-content;
                 left: calc(#{$sidenav-width} + 40px);
                 top: 20px;
             }
-            @media screen and (max-width: 400px){
+            @media screen and (max-width: 500px){
                 position: absolute;
                 width: max-content;
                 left: 13%;
@@ -154,12 +154,12 @@
 
             #winter{
                 // bigger screen
-                @media screen and (min-width: 400px){
+                @media screen and (min-width: 500px){
                     font-size: larger;
                     margin-left: 5px;
                 }
                 //mobile device
-                @media screen and (max-width: 400px){
+                @media screen and (max-width: 500px){
                     font-size: small;
                     margin-left: 2px;
                 }
@@ -175,7 +175,7 @@
                 display: initial; /* reset Font Awesome's display:inline-block */
                 margin-left: 5px;
                 //mobile device
-                @media screen and (max-width: 400px){
+                @media screen and (max-width: 500px){
                     // hide on mobile
                     display: none;
                 }
@@ -189,7 +189,7 @@
                 display: initial; /* reset Font Awesome's display:inline-block */
                 margin-right: 5px;
                 //mobile device
-                @media screen and (max-width: 400px){
+                @media screen and (max-width: 500px){
                     // hide on mobile
                     display: none;
                 }
@@ -197,13 +197,13 @@
 
             #fall{
                 // bigger screen
-                @media screen and (min-width: 400px){
+                @media screen and (min-width: 500px){
                     font-size: larger;
                     margin-right: 5px;
 
                 }
                 //mobile device
-                @media screen and (max-width: 400px){
+                @media screen and (max-width: 500px){
                     font-size: small;
                     margin-right: 2px;
                 }

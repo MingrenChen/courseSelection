@@ -56,14 +56,14 @@
         .cd-schedule__top-info{
             text-align: center;
             // bigger screen
-            @media screen and (min-width: 400px){
+            @media screen and (min-width: 500px){
                 height: $schedule-rows-header-height;
                 span {
                     top: calc(#{$schedule-rows-header-height} / 2 - 10px);
                 }
             }
             //mobile device
-            @media screen and (max-width: 400px){
+            @media screen and (max-width: 500px){
                 height: $schedule-rows-header-height-mobile;
                 span {
                     top: calc(#{$schedule-rows-header-height-mobile} / 2 - 10px);

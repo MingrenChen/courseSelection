@@ -1,5 +1,5 @@
 <template>
-    <li :class='showDetail' :id="'sidebar-course-' + course.keyCode">
+    <li :class='showDetail' :id="'sidebar-course-' + course.courseId">
         <div class="sidebar-header" :data-event="course.event" ref="sidebar-header" :style="this.headerStyle"></div>
         <div class="sidebar-content" ref="sidebar-content">
             <div class="sidebar-course-title" @click="sidebarCourseClick()">
@@ -13,15 +13,15 @@
                     <span style="font-size: smaller">Instructor: {{this.instructors}}</span>
                     <div class='LEC' v-if='this.getSectionWithTeachingMethod("LEC").length > 0'>
                         <label><strong>Lecture:</strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("LEC")' :section=key :course="course['courseId']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <div class='TUT' v-if='this.getSectionWithTeachingMethod("TUT").length > 0'>
                         <label><strong>Tutorial: </strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("TUT")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("TUT")' :section=key :course="course['courseId']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <div class='PRA' v-if='this.getSectionWithTeachingMethod("PRA").length > 0'>
                         <label><strong>Practice: </strong></label>
-                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")' :section=key :course="course['keyCode']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
+                        <sectionbutton v-for='key in this.getSectionWithTeachingMethod("PRA")' :section=key :course="course['courseId']" :selections="selections" :all-meeting-time="allMeetingTime" :enable-hover="true"></sectionbutton>
                     </div>
                     <div class="sidebar-course-detail" @click="openModal()"><img src="https://img.icons8.com/offices/20/000000/details-pane.png">detail</div>
                 </div>
@@ -93,7 +93,7 @@
                 gsap.to('.sidebar-show-course .sidebar-header', {scaleY: this.finalHeight/this.currentHeight, duration: 0.2, transformOrigin:"top"})
             },
             closeCourse: function(){
-                gsap.to('#sidebar-course-' + this.course.keyCode + ' .sidebar-header', {scaleY: 1, duration: 0.2, transformOrigin:"top", onComplete:this.removeCloseClass})
+                gsap.to('#sidebar-course-' + this.course.courseId + ' .sidebar-header', {scaleY: 1, duration: 0.2, transformOrigin:"top", onComplete:this.removeCloseClass})
             },
             getSectionWithTeachingMethod: function (teachingMethod) {
                 let lecs = [];
@@ -109,15 +109,15 @@
                 return lecs
             },
             sidebarCourseClick: function () {
-                EventBus.$emit('meetingClick', this.course.keyCode)
+                EventBus.$emit('meetingClick', this.course.courseId)
             },
             openModal: function () {
-                EventBus.$emit('openModal', this.$refs['sidebar-header'].getBoundingClientRect(), this.$refs['sidebar-content'].getBoundingClientRect(), this.course.keyCode)
+                EventBus.$emit('openModal', this.$refs['sidebar-header'].getBoundingClientRect(), this.$refs['sidebar-content'].getBoundingClientRect(), this.course.courseId)
             },
             removeCourse: function () {
-                gsap.to('#sidebar-course-' + this.course.keyCode, {x: -this.$el.clientWidth, duration: 0.2, transformOrigin:"right",
+                gsap.to('#sidebar-course-' + this.course.courseId, {x: -this.$el.clientWidth, duration: 0.2, transformOrigin:"right",
                     onComplete: function () {
-                        EventBus.$emit('removeCourse', this.course.keyCode)
+                        EventBus.$emit('removeCourse', this.course.courseId)
                     }.bind(this)
                 })
             }

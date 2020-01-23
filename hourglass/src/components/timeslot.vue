@@ -25,11 +25,11 @@ export default {
     border-color: #e6e4e1;
     position: relative;
     //bigger device
-    @media screen and (min-width: 400px){
+    @media screen and (min-width: 500px){
       height: $schedule-rows-height;
     }
     //mobile device
-    @media screen and (max-width: 400px){
+    @media screen and (max-width: 500px){
       height: $schedule-rows-height-mobile;
     }
   }
@@ -41,11 +41,11 @@ export default {
     overflow: visible;
     padding: 0;
     // bigger screen
-    @media screen and (min-width: 400px){
+    @media screen and (min-width: 500px){
       height: calc(#{$schedule-rows-number} * #{$schedule-rows-height});
     }
     //mobile device
-    @media screen and (max-width: 400px){
+    @media screen and (max-width: 500px){
       height: calc(#{$schedule-rows-number} * #{$schedule-rows-height-mobile});
     }
 

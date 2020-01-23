@@ -58,9 +58,10 @@
                 return this.$parent.$children.filter(e => e!== thisMeeting)
             },
             // slot is a little bigger than height in css because the border
+            // need to change css when change here
             slotHeight: function () {
                 if (this.$isMobile){
-                    return 56
+                    return 54
                 }
                 return 65
             }
@@ -98,7 +99,7 @@
                 return parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]);
             },
             meetingClick: function () {
-                EventBus.$emit('meetingClick', this.meeting.keyCode);
+                EventBus.$emit('meetingClick', this.meeting.courseId);
 
             },
             isOverflow: function () {
@@ -162,20 +163,20 @@
             overflow-y: hidden;
         }
         //bigger device
-        @media screen and (min-width: 400px){
-
+        @media screen and (min-width: 500px){
             span {
                 font-size: small;
             }
         }
         //mobile device
-        @media screen and (max-width: 400px){
-
+        @media screen and (max-width: 500px){
             strong {
                 font-size: smaller;
+                white-space: normal;
             }
             span {
                 font-size: x-small;
+
             }
         }
     }

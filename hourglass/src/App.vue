@@ -13,7 +13,7 @@
         <timetable  v-if="this.selectionLoading" :selections="this.selections" :semester="this.semester" :courses="this.sanitizeCourse"></timetable>
 
         <modal v-if="modalState.course !== null" :modal-state="this.modalState"
-               :all-meeting-time="this.allMeetingTime" :selections="this.selections[modalState.course.keyCode]">
+               :all-meeting-time="this.allMeetingTime" :selections="this.selections[modalState.course.courseId]">
         </modal>
         <transition name="cover">
             <div v-if="modalState.course !== null" class="cd-schedule__cover-layer" @click="closeModal"></div>
@@ -39,6 +39,7 @@
     import mapleleaf from './assets/image/mapleleaf.png'
     import VueGlobalVariable from 'vue-global-var'
     import Appheader from "./components/appheader";
+
 
     Vue.use(VueGlobalVariable, {
         globals: {
@@ -68,7 +69,6 @@
             timetable,
             modal,
             Snowf,
-            Appheader
         },
 
         created() {
@@ -80,51 +80,51 @@
             // vue component. Receiving mostly in App.vue
 
             // meetingClick happened when user click on the meeting
-            EventBus.$on('meetingClick', courseID => {
+            EventBus.$on('meetingClick', courseId => {
                 if (!this.$isMobile) {
-                    if (this.sidebarState.focusCourse !== courseID){
-                        this.sidebarState.focusCourse = courseID
+                    if (this.sidebarState.focusCourse !== courseId){
+                        this.sidebarState.focusCourse = courseId
                     } else {
                         this.sidebarState.focusCourse = null
                     }
                 } else {
                     let config = {top: 0, height: 0, left: 0, width: 0};
-                    EventBus.$emit('openModal', config, config, courseID)
+                    EventBus.$emit('openModal', config, config, courseId)
                 }
             });
 
             // to receive signal to select/unselect a section
             EventBus.$on('selectSection', info => {
-                this.selectSection(info.courseID, info.sectionID)
+                this.selectSection(info.courseId, info.sectionID)
             });
             EventBus.$on('unselectSection', info => {
-                this.unSelectSection(info.courseID, info.sectionID)
+                this.unSelectSection(info.courseId, info.sectionID)
             });
 
             // bounding box is for animation, where the color column come from.
-            EventBus.$on('openModal', (headerBoundingBox, contentBoundingBox, keyCode) => {
-                this.openModal(headerBoundingBox, contentBoundingBox, keyCode)
+            EventBus.$on('openModal', (headerBoundingBox, contentBoundingBox, courseId) => {
+                this.openModal(headerBoundingBox, contentBoundingBox, courseId)
             });
             EventBus.$on('closeModal', ()=>{
                 this.closeModal()
             });
 
             // to select or unselect a course
-            EventBus.$on('removeCourse', keyCode => {
-                this.unSelectCourse(keyCode)
+            EventBus.$on('removeCourse', courseId => {
+                this.unSelectCourse(courseId)
             });
             EventBus.$on('selectCourse', course => {
                 this.selectCourse(course);
-                let keyCode = Object.keys(course)[0];
+                let courseId = Object.keys(course)[0];
                 if (this.$isMobile){
                     // if is mobile device, open modal directly
                     let config = {top: 0, height: 0, left: 0, width: 0};
-                    EventBus.$emit('openModal', config, config, keyCode)
+                    EventBus.$emit('openModal', config, config, courseId)
                 }
             });
             EventBus.$on('emptyCourses', ()=>{
-                Object.keys(this.selections).map(keyCode => {
-                    this.unSelectCourse(keyCode)
+                Object.keys(this.selections).map(courseId => {
+                    this.unSelectCourse(courseId)
                 });
                 this.$cookies.remove('selections')
             });
@@ -144,8 +144,8 @@
             // first create a collection of request, and send them all together.
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
             let requests = [];
-            Object.keys(this.selections).forEach(courseID => {
-                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseID))
+            Object.keys(this.selections).forEach(courseId => {
+                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseId))
             });
             axios.all(requests).then(responses => {
                 for (let i=0;i<responses.length; i++){
@@ -215,14 +215,14 @@
             }
         },
         computed: {
-            // add keyCode and event number to course
+            // add courseId and event number to course
             sanitizeCourse: function(){
                 let courses = JSON.parse(JSON.stringify(this.courses));
                 for (let i=0; i<Object.keys(courses).length;i++){
-                    let keyCode = Object.keys(courses)[i];
-                    let course = courses[keyCode];
-                    course.keyCode = keyCode;
-                    course.event = this.getCourseDataEvent(keyCode)
+                    let courseId = Object.keys(courses)[i];
+                    let course = courses[courseId];
+                    course.courseId = courseId;
+                    course.event = this.getCourseDataEvent(courseId)
                 }
                 return courses
             },
@@ -231,7 +231,7 @@
                 let times = [];
                 Object.values(this.sanitizeCourse).map(course => {
                     Object.keys(course.meetings).forEach(sectionCode => {
-                        if (this.selections[course.keyCode].includes(sectionCode)){
+                        if (this.selections[course.courseId].includes(sectionCode)){
                             let meetings = Object.values(course.meetings[sectionCode].schedule);
                             meetings.map(meeting => {
                                 meeting.section = course.section
@@ -291,8 +291,8 @@
                 EventBus.$emit("closeDropdown");
                 this.showDropdownCover = false
             },
-            openModal: function(headerBoundingBox, contentBoundingBox, keyCode) {
-                this.modalState.course = this.sanitizeCourse[keyCode];
+            openModal: function(headerBoundingBox, contentBoundingBox, courseId) {
+                this.modalState.course = this.sanitizeCourse[courseId];
                 this.modalState.headerBoundingBox = {top: headerBoundingBox.top, left: headerBoundingBox.left,
                     width: headerBoundingBox.width, height: headerBoundingBox.height};
                 this.modalState.contentBoundingBox = {top: contentBoundingBox.top, left: contentBoundingBox.left,
@@ -322,18 +322,18 @@
             },
 
 
-            selectSection: function(courseID, sectionID) {
+            selectSection: function(courseId, sectionID) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
-                if (!(courseID in this.selections)) {
-                    selections[courseID] = [sectionID]
+                if (!(courseId in this.selections)) {
+                    selections[courseId] = [sectionID]
                 } else {
-                    selections[courseID].push(sectionID)
+                    selections[courseId].push(sectionID)
                 }
                 this.selections = selections
             },
-            unSelectSection: function(courseID, sectionID) {
+            unSelectSection: function(courseId, sectionID) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
-                selections[courseID] = this.selections[courseID].filter(e => e !== sectionID);
+                selections[courseId] = this.selections[courseId].filter(e => e !== sectionID);
                 this.selections = selections
             },
             selectCourse: function(course){
@@ -360,12 +360,12 @@
 
                 }
             },
-            unSelectCourse: function (keyCode) {
-                this.$delete(this.selections, keyCode);
-                this.$delete(this.courses, keyCode);
-                let event_id = parseInt(this.getCourseDataEvent(keyCode).split('-')[1]);
+            unSelectCourse: function (courseId) {
+                this.$delete(this.selections, courseId);
+                this.$delete(this.courses, courseId);
+                let event_id = parseInt(this.getCourseDataEvent(courseId).split('-')[1]);
                 this.$delete(this.courses_date_event, event_id);
-                if (this.sidebarState.focusCourse === keyCode){
+                if (this.sidebarState.focusCourse === courseId){
                     this.sidebarState.focusCourse = null
                 }
             },
@@ -449,7 +449,17 @@
         opacity: 1;
     }
 
+    .dropping-enter-active,
+    .dropping-leave-active {
+        transition: opacity .5s;
 
+    }
+    .dropping-enter,
+    .dropping-leave-to
+            /* .fade-leave-active below version 2.1.8 */
+    {
+        opacity: 0;
+    }
 
 
 </style>

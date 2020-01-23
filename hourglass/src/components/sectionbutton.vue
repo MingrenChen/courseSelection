@@ -79,13 +79,13 @@
                 if (this.hasSelected){
                     EventBus.$emit('unselectSection',
                         {
-                            courseID: this.course,
+                            courseId: this.course,
                             sectionID: Object.keys(this.section)[0]
                         })
                 } else {
                     EventBus.$emit('selectSection',
                         {
-                            courseID: this.course,
+                            courseId: this.course,
                             sectionID: Object.keys(this.section)[0]
                         })
                     if (this.isOnline){

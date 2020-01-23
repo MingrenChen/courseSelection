@@ -6,8 +6,8 @@
         </div>
         <div class="cd-sidenav__courses">
             <ul>
-                <sidebar-course v-for="course in courses" :key="course.keyCode"
-                                :show-course="sidebarState.focusCourse === course.keyCode"
+                <sidebar-course v-for="course in courses" :key="course.courseId"
+                                :show-course="sidebarState.focusCourse === course.courseId"
                                 :course="course" :selections="selectedSections(course)"></sidebar-course>
             </ul>
         </div>
@@ -28,7 +28,7 @@
         },
         methods: {
             selectedSections: function (course) {
-                return this.selections[course.keyCode]
+                return this.selections[course.courseId]
             },
             getCredit: function(semester) {
                 return Object.keys(this.selections).map(element => {

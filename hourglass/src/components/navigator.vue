@@ -63,10 +63,10 @@
 
 <style scoped lang="scss">
     .dropdown {
-        @media screen and (min-width: 400px){
+        @media screen and (min-width: 500px){
             display: none;
         }
-        @media screen and (max-width: 400px){
+        @media screen and (max-width: 500px){
             top: 16px;
             left: 4%;
             position: absolute;

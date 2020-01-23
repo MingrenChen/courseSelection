@@ -64,7 +64,7 @@ export default {
           Object.keys(meetings).forEach(meetingId => {
             let meeting = meetings[meetingId]
             if (meeting.meetingDay){
-              meeting.keyCode = courseId
+              meeting.courseId = courseId
               meeting.section = course.section
               meeting.selectedSectionId = section
               meeting.event = course.event
@@ -119,11 +119,11 @@ export default {
     height: 100%;
     width: 100%;
     // bigger screen
-    @media screen and (min-width: 400px){
+    @media screen and (min-width: 500px){
       padding-top: $schedule-rows-header-height;
     }
     //mobile device
-    @media screen and (max-width: 400px){
+    @media screen and (max-width: 500px){
       padding-top: $schedule-rows-header-height-mobile;
     }
 
@@ -141,10 +141,17 @@ export default {
 
   .cd-schedule__events {
     position: relative;
-    width: calc(100% - 60px);
-    margin-left: 60px;
     height: 100%;
-
+    // bigger screen
+    @media screen and (min-width: 500px){
+      margin-left: 60px;
+      width: calc(100% - 60px);
+    }
+    //mobile device
+    @media screen and (max-width: 500px){
+      margin-left: 35px;
+      width: calc(100% - 35px);
+    }
     ul {
       padding-left: 0;
       display: flex;
