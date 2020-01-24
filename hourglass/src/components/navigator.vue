@@ -21,6 +21,7 @@
     import $ from "jquery"
     import html2canvas from 'html2canvas'
     import EventBus from "../assets/js/EventBus";
+    import author from '../assets/image/author.jpg'
 
     export default {
         name: "navigator",
@@ -55,7 +56,15 @@
                 EventBus.$emit("emptyCourses")
             },
             reportBug: function () {
-
+                this.$fire({
+                    title: "<img src=\"https://img.icons8.com/nolan/30/bug.png\">Find A Bug?",
+                    text: "Add author's WeChat!",
+                    imageUrl: author,
+                    imageWidth: 200,
+                    imageHeight: 200,
+                }).then(r => {
+                    console.log(r.value);
+                });
             }
         }
     }
