@@ -4,7 +4,9 @@
             <Snowf v-if="droppingStart"
                     v-bind="droppingConfig" />
         </transition>
-        <appheader></appheader>
+        <appheader v-if="this.selectionLoading" :all-missing-sections="this.allMissingSections"
+                    :all-meeting-time="this.allMeetingTime"
+        ></appheader>
 
         <sidebar v-if="!$isMobile && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
                  :selections="this.selections">
@@ -29,37 +31,13 @@
     import sidebar from "./components/sidebar";
     import axios from 'axios'
     import Vue from 'vue'
-    import VueCookies from 'vue-cookies'
 
-    // notification message
-    import VueNotification from "@kugatsu/vuenotification";
+
     // animation when change semester
     import Snowf from 'vue-snowf';
     import snowpick from './assets/image/snow.png'
     import mapleleaf from './assets/image/mapleleaf.png'
-    import VueGlobalVariable from 'vue-global-var'
     import Appheader from "./components/appheader";
-
-
-    Vue.use(VueGlobalVariable, {
-        globals: {
-            $isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-        }
-    });
-
-    Vue.use(VueNotification, {
-        primary: {
-            background: "#85c0ff",
-            color: 'white'
-        },
-        error: {
-            background: "#c73232",
-            color: 'white'
-        }
-    });
-
-    Vue.use(VueCookies);
-    Vue.$cookies.config('1y');
 
     export default {
         name: 'app',
@@ -74,6 +52,35 @@
         created() {
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
+        },
+        beforeMount(){
+            // get selections from cookie.
+            if (Vue.$cookies.isKey('selections')){
+                this.selections = Vue.$cookies.get('selections')
+            } else {
+                this.selections = {}
+            }
+            // first create a collection of request, and send them all together.
+            // after all request done, set selectionLoading to true, then timetable/sidebar render.
+            let requests = [];
+            Object.keys(this.selections).forEach(courseId => {
+                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseId))
+            });
+            axios.all(requests).then(responses => {
+                for (let i=0;i<responses.length; i++){
+                    if (Object.keys(responses[i].data).length > 0){
+                        let course = responses[i].data;
+                        Object.assign(this.courses, course)
+                    } else {
+                        let url_split = responses[i].config.url.split('/');
+                        let courseId = url_split[url_split.length - 1];
+                        this.$delete(this.selections, courseId)
+                    }
+                }
+                this.selectionLoading = true
+            }).catch(error => {
+                console.log(error)
+            });
         },
         mounted() {
             // EventBus is to receive and sending request between different
@@ -134,34 +141,8 @@
                 this.showDropdownCover = true
             });
 
-            // get selections from cookie.
-            if (Vue.$cookies.isKey('selections')){
-                 this.selections = Vue.$cookies.get('selections')
-            } else {
-                this.selections = {}
-            }
 
-            // first create a collection of request, and send them all together.
-            // after all request done, set selectionLoading to true, then timetable/sidebar render.
-            let requests = [];
-            Object.keys(this.selections).forEach(courseId => {
-                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseId))
-            });
-            axios.all(requests).then(responses => {
-                for (let i=0;i<responses.length; i++){
-                    if (Object.keys(responses[i].data).length > 0){
-                        let course = responses[i].data;
-                        Object.assign(this.courses, course)
-                    } else {
-                        let url_split = responses[i].config.url.split('/');
-                        let courseId = url_split[url_split.length - 1];
-                        this.$delete(this.selections, courseId)
-                    }
-                }
-                this.selectionLoading = true
-            }).catch(error => {
-                console.log(error)
-            })
+
 
         },
         destroyed() {
@@ -212,6 +193,7 @@
             // when selections change, we save it to cookie
             selections: function () {
                 Vue.$cookies.set('selections', this.selections)
+                // this.$allMeetingTime = this.allMeetingTime
             }
         },
         computed: {
@@ -243,6 +225,33 @@
                 return times
             },
 
+            /*
+            小明选了csc108的lec0101但没选tut，这个方程就会return {'csc108': ['tut-0101', 'tut-0201']}
+            */
+            allMissingSections: function () {
+                let missingSections = {};
+                Object.keys(this.sanitizeCourse).map(courseId => {
+                    let course = this.sanitizeCourse[courseId];
+                    let selectedTeachingMethod = this.selections[courseId].map(sectionId => {
+                        return sectionId.slice(0, 3)
+                    });
+                    let missingSectionsForThisCourse = {};
+                    Object.keys(course.meetings).forEach(sectionId => {
+                        let section = JSON.parse(JSON.stringify(course.meetings[sectionId]));
+                        if (! selectedTeachingMethod.includes(section.teachingMethod)){
+                            if (!Object.keys(missingSectionsForThisCourse).includes(section.teachingMethod)) {
+                                missingSectionsForThisCourse[section.teachingMethod] = {}
+                            }
+                            section['section'] = course.section;
+                            missingSectionsForThisCourse[section.teachingMethod][sectionId] = section;
+                        }
+                    });
+                    if (Object.keys(missingSectionsForThisCourse).length > 0){
+                        missingSections[courseId] = missingSectionsForThisCourse;
+                    }
+                });
+                return missingSections
+            },
 
             // config for the dropping maple leaf or snow pick
             droppingConfig: function () {

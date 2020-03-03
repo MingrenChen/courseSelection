@@ -17,9 +17,10 @@ let getScheduleTimestamp = function (time) {
 };
 
 let hasConflict = function(that, other){
-    return !(that.meetingStartTime >= other.meetingEndTime
-        || that.meetingEndTime <= other.meetingStartTime)
-}
+    return (!(that.meetingStartTime >= other.meetingEndTime
+        || that.meetingEndTime <= other.meetingStartTime))
+        &&  (that.meetingDay === other.meetingDay)
+};
 
 let sortMeetings = function(meetings){
     return meetings.sort((x, y) => {
@@ -65,11 +66,11 @@ let noContinuousCourses = function(meetings, emerg){
 };
 
 let blockTime = function(meetings, times){
-    let score = 0
+    let score = 0;
     times.forEach(time => {
         meetings.forEach(meetings => {
             let t = {meetingStartTime: time + ":00",
-                meetingEndTime: time + 1 + ":00"}
+                meetingEndTime: time + 1 + ":00"};
             if (time === 9) {
                 t.meetingStartTime = "09:00"
             }
@@ -77,9 +78,9 @@ let blockTime = function(meetings, times){
                 score += 10000
             }
         })
-    })
+    });
     return score
-}
+};
 
 
 let dayGrading = function (meetings, criteria) {

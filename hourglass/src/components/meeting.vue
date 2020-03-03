@@ -108,31 +108,12 @@
                 let processorTotal = this.meeting.processorTotal;
                 return (end - start) > 60 && processorTotal === 1
             },
+            // 宝哥救我！我不会做动画！！
             snap: function () {
                 html2canvas(this.$el).then(response => {
                     let {width, height} = response;
                     const ctx = response.getContext("2d");
                     const originalData = ctx.getImageData(0, 0, width, height);
-
-                    // this.$el.appendChild(response);
-                    // console.log(originalData, width, height);
-                    //
-                    // for (let x = 0; x < width * 4; x+=2) {
-                    //     for (let y = 0; y < height; ++y) {
-                    //         // show block pixel or original pixel
-                    //         // 这里的 i 决定像素密度（相当于把每一个像素分布到几个 canvas 上）
-                    //         let data = originalData.data;
-                    //         let r = y * (width * 4) + x * 4;
-                    //         let g = r + 1;
-                    //         let b = g + 1;
-                    //         let a = b + 1;
-                    //         data[r] = 255
-                    //         // for (let i = 0; i < 4; i++) {
-                    //         //
-                    //         // }
-                    //     }
-                    // }
-                    // this.showCurrentMeeting = false;
                 })
 
             }

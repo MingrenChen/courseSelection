@@ -1,7 +1,6 @@
 <template>
     <div id="searchArea">
         <navigator></navigator>
-<!--        <img src="https://img.icons8.com/officel/25/000000/menu.png">-->
         <div class="cd-sidenav__semester">
             <div class="cd-sidenav__semester-toggle">
                 <i class="fab fa-canadian-maple-leaf" :class="semesterClass('fall')"></i>
@@ -39,6 +38,13 @@
             ToggleButton,
             Autocomplete,
             navigator
+        },
+        props: [
+            "allMissingSections",
+            'allMeetingTime'
+        ],
+        mounted() {
+            // console.log(this.allMissingSections)
         },
         computed: {
             toggleConfig: function () {

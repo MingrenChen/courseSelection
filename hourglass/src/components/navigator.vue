@@ -13,6 +13,10 @@
                     <img src="https://img.icons8.com/dotty/20/000000/bug.png">
                     Report Bug
                 </a>
+                <a @click="generateTimetableClick">
+                    <img src="https://img.icons8.com/dotty/20/000000/bug.png">
+                    Generate Timetable
+                </a>
             </div>
     </div>
 </template>
@@ -55,6 +59,7 @@
             removeAllCourses: function (){
                 EventBus.$emit("emptyCourses")
             },
+
             reportBug: function () {
                 this.$fire({
                     title: "<img src=\"https://img.icons8.com/nolan/30/bug.png\">Find A Bug?",
@@ -65,6 +70,30 @@
                 }).then(r => {
                     console.log(r.value);
                 });
+            },
+
+            generateTimetableClick: function () {
+                this.$fire({
+                    title: 'Preferences',
+                    input: 'select',
+                    inputOptions: {
+                        1: 'Early',
+                        2: 'Balance',
+                        3: 'Late',
+                        4: 'Long Weekend'
+                    },
+                    inputValue: 2,
+                    showCancelButton: true,
+                }).then(value => {
+                    this.generateTimetable()
+                })
+
+            },
+            generateTimetable: function (value) {
+                console.log(this.$parent.$parent.allMissingSections.length)
+                this.$parent.$parent.allMissingSections.forEach(courseId => {
+                    console.log(courseId)
+                })
             }
         }
     }
@@ -73,7 +102,16 @@
 <style scoped lang="scss">
     .dropdown {
         @media screen and (min-width: 500px){
-            display: none;
+            /*display: none;*/
+            right: 90px;
+            top: 30px;
+            display: inline-block;
+            position: absolute;
+            .dropdown-content {
+                position: absolute;
+                right: 0;
+
+            }
         }
         @media screen and (max-width: 500px){
             top: 16px;
@@ -82,25 +120,29 @@
             display: inline-block;
             .dropdown-content {
                 position: absolute;
-                background-color: #f9f9f9;
-                width: 160px;
-                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                z-index: 3;
+            }
+        }
+        .dropdown-content {
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 3;
+            width: max-content;
 
-                a{
-                    color: black;
-                    padding: 8px 8px;
-                    text-decoration: none;
-                    display: block;
-                    font-size: smaller;
-                    img{
-                        vertical-align: middle;
-                        color: white;
-                    }
+            a{
+                color: black;
+                padding: 8px 8px;
+                text-decoration: none;
+                cursor: pointer;
+                display: block;
+                font-size: smaller;
+                img{
+                    vertical-align: middle;
+                    color: white;
                 }
-                a:hover {
-                    background: gray;
-                }
+            }
+            a:hover {
+                background: gray;
             }
         }
         img {
