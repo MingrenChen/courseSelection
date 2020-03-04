@@ -80,13 +80,13 @@
                     EventBus.$emit('unselectSection',
                         {
                             courseId: this.course,
-                            sectionID: Object.keys(this.section)[0]
+                            sectionId: Object.keys(this.section)[0]
                         })
                 } else {
                     EventBus.$emit('selectSection',
                         {
                             courseId: this.course,
-                            sectionID: Object.keys(this.section)[0]
+                            sectionId: Object.keys(this.section)[0]
                         })
                     if (this.isOnline){
                         this.$notification.new(Object.keys(this.section)[0] + " is an Online meeting.")

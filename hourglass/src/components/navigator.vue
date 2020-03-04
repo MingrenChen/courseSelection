@@ -1,6 +1,6 @@
 <template>
     <div class="dropdown" @click="clickDropdown">
-        <img src="https://img.icons8.com/officel/25/000000/menu.png" class="dropbtn">
+        <img :src="menuUrl" class="dropbtn">
             <div class="dropdown-content" v-if="isOpen">
                 <a @click="saveScreenShot">
                     <img src="https://img.icons8.com/dotty/20/000000/save.png">
@@ -13,9 +13,8 @@
                     <img src="https://img.icons8.com/dotty/20/000000/bug.png">
                     Report Bug
                 </a>
-                <a @click="generateTimetableClick">
-                    <img src="https://img.icons8.com/dotty/20/000000/bug.png">
-                    Generate Timetable
+                <a @click="generateTimetable">
+                    <img src="https://img.icons8.com/dotty/20/000000/engineering.png">                    Generate Timetable
                 </a>
             </div>
     </div>
@@ -26,13 +25,16 @@
     import html2canvas from 'html2canvas'
     import EventBus from "../assets/js/EventBus";
     import author from '../assets/image/author.jpg'
+    import getTotalScore from '../assets/js/TimetableGrading'
+    import { MaxHeap } from '@datastructures-js/heap';
+    import shuffle from "../assets/js/Shuffle";
 
     export default {
         name: "navigator",
 
         data: function() {
             return {
-                isOpen: false
+                isOpen: false,
             }
         },
         mounted() {
@@ -40,9 +42,16 @@
                 this.isOpen = false
             }.bind(this))
         },
+        computed: {
+            menuUrl: function () {
+                let size = this.$isMobile ? 25 : 50;
+                return "https://img.icons8.com/officel/" + size + "/000000/menu.png"
+
+            }
+        },
         methods: {
             clickDropdown: function () {
-                this.isOpen = !this.isOpen
+                this.isOpen = !this.isOpen;
                 if (this.isOpen){
                     EventBus.$emit('openDropdownCover')
                 }
@@ -85,14 +94,37 @@
                     inputValue: 2,
                     showCancelButton: true,
                 }).then(value => {
-                    this.generateTimetable()
+                    this.generateTimetable(value)
                 })
 
             },
             generateTimetable: function (value) {
-                console.log(this.$parent.$parent.allMissingSections.length)
-                this.$parent.$parent.allMissingSections.forEach(courseId => {
-                    console.log(courseId)
+                value = 'early';
+                // 对于每一门课
+                Object.keys(this.$parent.$parent.allMissingSections).forEach(courseId => {
+                    let method = this.$parent.$parent.allMissingSections[courseId];
+                    Object.values(method).forEach(sections => {
+                        let best_sections = {}
+                        //此 method 的候选
+                        Object.keys(sections).forEach(sectionId => {
+                            // method是这门课所有tut/pra/lec的section
+                            let section = sections[sectionId];
+                            best_sections[sectionId] = getTotalScore(section, this.$parent.$parent.allMeetingTime, value)
+                        })
+                        // 用heap找出这些candidate中得分最高的n个
+                        let heap = MaxHeap.heapify(Object.keys(best_sections).map(sectionId => {
+                            let result = {}
+                            result['value'] = sectionId
+                            result['key'] = best_sections[sectionId]
+                            return result
+                        }))
+                        let result = []
+                        for (let i=0; i < 3; i++){
+                            result.push(heap.extractRoot());
+                        }
+                        result = shuffle(result.filter(element => !!element))
+                        EventBus.$emit('selectSection', {courseId: courseId, sectionId: result[0]['value']})
+                    })
                 })
             }
         }
@@ -103,8 +135,7 @@
     .dropdown {
         @media screen and (min-width: 500px){
             /*display: none;*/
-            right: 90px;
-            top: 30px;
+            right: 5%;
             display: inline-block;
             position: absolute;
             .dropdown-content {

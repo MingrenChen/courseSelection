@@ -102,10 +102,10 @@
 
             // to receive signal to select/unselect a section
             EventBus.$on('selectSection', info => {
-                this.selectSection(info.courseId, info.sectionID)
+                this.selectSection(info.courseId, info.sectionId)
             });
             EventBus.$on('unselectSection', info => {
-                this.unSelectSection(info.courseId, info.sectionID)
+                this.unSelectSection(info.courseId, info.sectionId)
             });
 
             // bounding box is for animation, where the color column come from.
@@ -226,7 +226,7 @@
             },
 
             /*
-            小明选了csc108的lec0101但没选tut，这个方程就会return {'csc108': ['tut-0101', 'tut-0201']}
+            小明选了csc108的lec0101但没选tut，这个方程就会return {'csc108': {tut: ['tut-0101', 'tut-0201']}}
             */
             allMissingSections: function () {
                 let missingSections = {};
@@ -331,18 +331,18 @@
             },
 
 
-            selectSection: function(courseId, sectionID) {
+            selectSection: function(courseId, sectionId) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
                 if (!(courseId in this.selections)) {
-                    selections[courseId] = [sectionID]
+                    selections[courseId] = [sectionId]
                 } else {
-                    selections[courseId].push(sectionID)
+                    selections[courseId].push(sectionId)
                 }
                 this.selections = selections
             },
-            unSelectSection: function(courseId, sectionID) {
+            unSelectSection: function(courseId, sectionId) {
                 let selections = JSON.parse(JSON.stringify(this.selections));
-                selections[courseId] = this.selections[courseId].filter(e => e !== sectionID);
+                selections[courseId] = this.selections[courseId].filter(e => e !== sectionId);
                 this.selections = selections
             },
             selectCourse: function(course){

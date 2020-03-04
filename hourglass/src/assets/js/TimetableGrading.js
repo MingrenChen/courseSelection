@@ -16,81 +16,82 @@ let getScheduleTimestamp = function (time) {
     return (parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]))/60;
 };
 
-let hasConflict = function(that, other){
+/*
+Measure if two meeting schedules are conflict
+ */
+let hasConflictBetweenMeetings = function(that, other){
     return (!(that.meetingStartTime >= other.meetingEndTime
         || that.meetingEndTime <= other.meetingStartTime))
         &&  (that.meetingDay === other.meetingDay)
+        &&  (that.section === other.section)
 };
 
-let sortMeetings = function(meetings){
-    return meetings.sort((x, y) => {
-        if (x.meetingStartTime > y.meetingStartTime){
-            return 1
-        } else if (x.meetingStartTime === y.meetingStartTime){
-            if (x.meetingEndTime > y.meetingEndTime){
-                return 1
-            } else if (x.meetingEndTime < y.meetingEndTime){
-                return -1
-            }
-            return 0
+let hasConflictBetweenMeetingAndAllMeeting = function(meeting, allMeetingTime){
+    let result = allMeetingTime.filter(selectedMeeting => {
+        return hasConflictBetweenMeetings(meeting, selectedMeeting)
+    });
+    return result.length > 0
+};
+
+let getConflictBetweenSectionAndAllMeeting = function(section, allMeetingTime){
+    let result = Object.values(section.schedule).map(meeting => {
+        meeting.section = section.section;
+        if (hasConflictBetweenMeetingAndAllMeeting(meeting, allMeetingTime)){
+            return true
         }
-        return -1
-    })
+    });
+    return result.some(element => !! element) ? -100 : 0;
 };
 
+let getTimeScore = function (section, value) {
+    let scores = [];
+    Object.values(section.schedule).forEach(meeting => {
+        let start = getScheduleTimestamp(meeting.meetingStartTime);
+        let end = getScheduleTimestamp(meeting.meetingEndTime);
 
-let noConflict = function(meetings, emerg) {
-    let score = 0;
-    for (let i=0; i<meetings.length - 1; i++) {
-        let thisMeeting = meetings[i];
-        let nextMeeting = meetings[i+1];
-        if (hasConflict(thisMeeting, nextMeeting)
-            || thisMeeting.meetingEndTime <= nextMeeting.meetingStartTime){
-            score += emerg
+        scores.push(timeGrading(start, end, value))
+    });
+    return scores.reduce((a,b) => a + b, 0)
+};
+
+let timeGrading = function (timeStart, timeEnd, value) {
+    let tstart = timeStart - 15;
+    let tend = timeEnd - 15;
+    let score = tstart + tend;
+    switch (value) {
+        case 'early':
+            return -score;
+        case 'late':
+            return score;
+        case 'balance':
+            return 30 - Math.abs(score);
+        default:
+            return 0;
+    }
+};
+
+let getDayScore = function (section, value) {
+    let scores = [];
+    Object.values(section.schedule).forEach(meeting => {
+        let day = meeting.meetingDay;
+        scores.push(dayGrading(day, value))
+    });
+    return scores.reduce((a,b) => a + b, 0)
+};
+
+let dayGrading = function(day, value) {
+    if (value === 'Long Weekend'){
+        if (day === 'FR' || day === 'MO'){
+            return -20
         }
     }
-    return score
+    return 0;
 };
 
-let noContinuousCourses = function(meetings, emerg){
-    let score = 0;
-    for (let i=0; i<meetings.length - 1; i++) {
-        let thisMeeting = meetings[i];
-        let nextMeeting = meetings[i+1];
-        if (thisMeeting.meetingEndTime === nextMeeting.meetingStartTime
-            && thisMeeting.courseId !== nextMeeting.courseId){
-            score += emerg
-        }
-    }
-    return score
-};
+let getTotalScore = function (section, allMeetingTime, value) {
+    return getConflictBetweenSectionAndAllMeeting(section, allMeetingTime) +
+        getDayScore(section, value) + getTimeScore(section, value)
+}
 
-let blockTime = function(meetings, times){
-    let score = 0;
-    times.forEach(time => {
-        meetings.forEach(meetings => {
-            let t = {meetingStartTime: time + ":00",
-                meetingEndTime: time + 1 + ":00"};
-            if (time === 9) {
-                t.meetingStartTime = "09:00"
-            }
-            if (hasConflict(meetings, t)){
-                score += 10000
-            }
-        })
-    });
-    return score
-};
+export default getTotalScore;
 
-
-let dayGrading = function (meetings, criteria) {
-    let score = 0;
-    meetings = sortMeetings(meetings);
-    criteria.forEach(func => {
-        score += func(meetings, 50)
-    });
-    return score
-};
-
-score = dayGrading(meetings, [noConflict, noContinuousCourses]);
-console.log(blockTime(meetings, [9,11]));

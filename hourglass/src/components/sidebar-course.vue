@@ -98,11 +98,11 @@
             getSectionWithTeachingMethod: function (teachingMethod) {
                 let lecs = [];
                 for (let i=0;i < Object.keys(this.course.meetings).length;i++){
-                    let sectionID = Object.keys(this.course.meetings)[i]
+                    let sectionId = Object.keys(this.course.meetings)[i]
                     let value = Object.values(this.course.meetings)[i]
                     if (value.teachingMethod === teachingMethod){
                         let section = {}
-                        section[sectionID] = JSON.parse(JSON.stringify(value))
+                        section[sectionId] = JSON.parse(JSON.stringify(value))
                         lecs.push(section)
                     }
                 }
