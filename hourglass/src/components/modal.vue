@@ -1,6 +1,6 @@
 <template>
     <div class="cd-schedule-modal" :style='this.getStyleWithPx' :data-event='getEvent'>
-        <div class="cd-schedule-modal__header" >
+        <div class="cd-schedule-modal__header" :style="{background: this.course.color}">
             <span class="cd-schedule-modal-coursecode">{{this.course.code + this.course.section}}</span>
             <span class="cd-schedule-modal-coursetitle">{{this.course.courseTitle}}</span>
             <div class="cd-schedule-modal__coursetime" v-for="(times, sec) in sectionTimes">

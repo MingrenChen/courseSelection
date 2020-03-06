@@ -81,7 +81,7 @@ let getDayScore = function (section, value) {
 
 let dayGrading = function(day, value) {
     if (value === 'Long Weekend'){
-        if (day === 'FR' || day === 'MO'){
+        if (day === 'FR'){
             return -20
         }
     }

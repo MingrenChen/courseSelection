@@ -186,7 +186,25 @@
                     resize: true,
                     color: "#00bfff",
                 },
-                droppingStart: false
+                droppingStart: false,
+                colors: [
+                    [271, '23%', '26%'],   // Martinique
+                    [162, '14%', '68%'],   // Edward
+                    [31, '89%', '68%'],    // Rajah
+                    [199, '25%', '46%'],   // gray
+                    [136, '72%', '45%'],   // green
+                    [195, '100%', '50%'],   // Smalt Blue
+                    [349, '84%', '77%'],   // Smalt Blue
+                    [293, '71%', '57%'],   // Smalt Blue
+                    [44, '55%', '37%'],   // Smalt Blue
+                    [247, '55%', '37%'],   // Smalt Blue
+                    [81, '52%', '21%'],   // Smalt Blue
+                    [11, '81%', '53%'],   // Smalt Blue
+                    [240, '81%', '79%'],   // Smalt Blue
+                    [308, '21%', '35%'],   // Smalt Blue
+                    [176, '80%', '56%'],   // Smalt Blue
+                    [359, '79%', '33%'],   // Smalt Blue
+                ]
             }
         },
         watch: {
@@ -205,6 +223,7 @@
                     let course = courses[courseId];
                     course.courseId = courseId;
                     course.event = this.getCourseDataEvent(courseId)
+                    course.color = this.getCourseColor(course.event);
                 }
                 return courses
             },
@@ -284,7 +303,11 @@
                     }
                     return null
                 }
-
+            },
+            // we use data event tag for color of each course. We need to add event to this.course
+            getCourseColor: function(dataEvent){
+                let data_event_id = parseInt(dataEvent.split("-")[1])
+                return 'hsl(' + this.colors[data_event_id].join(',') + ')'
             },
             // get credit for different semester
             getCredit: function(semester) {
@@ -407,17 +430,6 @@
     #app {
         height: 100%;
     }
-
-
-
-    @for $i from 1 through 16 {
-        .cd-schedule__event [data-event=#{"event-" + $i}],
-        .sidebar-header[data-event=#{"event-" + $i}],
-        .cd-schedule-modal[data-event=#{"event-" + $i}] .cd-schedule-modal__header {
-            background:  nth($colors, $i)
-        }
-    }
-
 
 
     .cd-schedule__cover-layer {

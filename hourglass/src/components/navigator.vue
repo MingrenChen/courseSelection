@@ -13,7 +13,7 @@
                     <img src="https://img.icons8.com/dotty/20/000000/bug.png">
                     Report Bug
                 </a>
-                <a @click="generateTimetable">
+                <a @click="generateTimetableClick">
                     <img src="https://img.icons8.com/dotty/20/000000/engineering.png">                    Generate Timetable
                 </a>
             </div>
@@ -99,7 +99,6 @@
 
             },
             generateTimetable: function (value) {
-                value = 'early';
                 // 对于每一门课
                 Object.keys(this.$parent.$parent.allMissingSections).forEach(courseId => {
                     let method = this.$parent.$parent.allMissingSections[courseId];

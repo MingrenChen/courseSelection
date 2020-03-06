@@ -1,6 +1,6 @@
 <template>
     <li :class='showDetail' :id="'sidebar-course-' + course.courseId">
-        <div class="sidebar-header" :data-event="course.event" ref="sidebar-header" :style="this.headerStyle"></div>
+        <div class="sidebar-header" :data-event="course.event" ref="sidebar-header" :style="this.headerStyle" @click="changeColor"></div>
         <div class="sidebar-content" ref="sidebar-content">
             <div class="sidebar-course-title" @click="sidebarCourseClick()">
                 <div style="overflow-x: hidden;white-space:nowrap;width: 100%" :title="courseHeader">{{courseHeader}}</div>
@@ -45,7 +45,7 @@
         props: ['selections','course', 'showCourse'],
         data: function () {
             return {
-                headerStyle: {height: '100%'},
+                headerStyle: {height: '100%', background: this.course.color},
                 classList: {"sidebar-course": true, "sidebar-show-course": this.showCourse}
             }
         },
@@ -120,6 +120,9 @@
                         EventBus.$emit('removeCourse', this.course.courseId)
                     }.bind(this)
                 })
+            },
+            changeColor: function () {
+                
             }
         }
     }

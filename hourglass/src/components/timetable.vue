@@ -41,7 +41,7 @@ export default {
     },
     // times is to build the timetable with proper time
     times: function () {
-      let timeList = []
+      let timeList = [];
       for (let h = 9; h < 22; h++) {
         if (h === 9) {
           h = '09'
@@ -52,24 +52,25 @@ export default {
     },
 
     sectionByDay: function () {
-      let fall = { 'MO': [], 'TU': [], 'WE': [], 'TH': [], 'FR': [] }
-      let winter = { 'MO': [], 'TU': [], 'WE': [], 'TH': [], 'FR': [] }
-      let result = { 'fall': fall, 'winter': winter }
+      let fall = { 'MO': [], 'TU': [], 'WE': [], 'TH': [], 'FR': [] };
+      let winter = { 'MO': [], 'TU': [], 'WE': [], 'TH': [], 'FR': [] };
+      let result = { 'fall': fall, 'winter': winter };
       for (let i = 0; i < Object.keys(this.selections).length; i++) {
-        let courseId = Object.keys(this.selections)[i]
-        let sections = this.selections[courseId]
-        let course = this.courses[courseId]
+        let courseId = Object.keys(this.selections)[i];
+        let sections = this.selections[courseId];
+        let course = this.courses[courseId];
         sections.forEach(section => {
-          let meetings = this.courses[courseId]['meetings'][section]['schedule']
+          let meetings = this.courses[courseId]['meetings'][section]['schedule'];
           Object.keys(meetings).forEach(meetingId => {
-            let meeting = meetings[meetingId]
+            let meeting = meetings[meetingId];
             if (meeting.meetingDay){
-              meeting.courseId = courseId
-              meeting.section = course.section
-              meeting.selectedSectionId = section
-              meeting.event = course.event
-              meeting.code = course.code
-              meeting.courseTitle = course.courseTitle
+              meeting.courseId = courseId;
+              meeting.section = course.section;
+              meeting.selectedSectionId = section;
+              meeting.event = course.event;
+              meeting.code = course.code;
+              meeting.color = course.color;
+              meeting.courseTitle = course.courseTitle;
               if (meeting.section === 'F'||meeting.section === 'Y'){
                 result.fall[meeting.meetingDay].push(meeting)
               }

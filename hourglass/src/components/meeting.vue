@@ -1,6 +1,6 @@
 <template>
     <li :class="meetingClassList" :style="getStyle" @click="meetingClick" >
-        <a v-if="showCurrentMeeting" :data-start="this.startTime" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
+        <a v-if="showCurrentMeeting" :data-start="this.startTime" :style="getBackground" :data-end="this.endTime" :data-event="this.dataevent" href="#0" ref="meeting">
             <strong class="cd-schedule__name">{{this.courseCode}}</strong><br>
             <span>{{this.meeting.selectedSectionId}}</span><br>
             <em class="cd-schedule__name" v-if="isOverflow() && !this.$isMobile">{{this.courseTitle}}</em>
@@ -49,6 +49,9 @@
                 if (this.style) {
                     return this.style
                 }
+            },
+            getBackground: function() {
+                return {'background': this.meeting.color}
             },
             dataevent: function () {
                 return this.meeting.event
@@ -106,7 +109,7 @@
                 let start = this.getScheduleTimestamp(this.meeting.meetingStartTime);
                 let end = this.getScheduleTimestamp(this.meeting.meetingEndTime);
                 let processorTotal = this.meeting.processorTotal;
-                return (end - start) > 60 && processorTotal === 1
+                return (end - start) > 60
             },
             // 宝哥救我！我不会做动画！！
             snap: function () {
