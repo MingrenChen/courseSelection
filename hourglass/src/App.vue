@@ -4,9 +4,16 @@
             <Snowf v-if="droppingStart"
                     v-bind="droppingConfig" />
         </transition>
+
         <appheader v-if="this.selectionLoading" :all-missing-sections="this.allMissingSections"
                     :all-meeting-time="this.allMeetingTime"
         ></appheader>
+
+        <transition name="colorpicker">
+            <color-picker v-if="colorPickerCourse" :change="changeColor" :course="colorPickerCourse"></color-picker>
+        </transition>
+<!--        <div v-if="colorPickerCourse" class="cd-schedule__colorpicker-cover-layer" @click="closeColor"></div>-->
+
 
         <sidebar v-if="!$isMobile && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
                  :selections="this.selections">
@@ -32,7 +39,6 @@
     import axios from 'axios'
     import Vue from 'vue'
 
-
     // animation when change semester
     import Snowf from 'vue-snowf';
     import snowpick from './assets/image/snow.png'
@@ -47,6 +53,8 @@
             timetable,
             modal,
             Snowf,
+            'color-picker': require('./components/color-picker').default,
+
         },
 
         created() {
@@ -60,6 +68,31 @@
             } else {
                 this.selections = {}
             }
+
+            // get color from cookie.
+            if (Vue.$cookies.isKey('colors')){
+                this.colors = Vue.$cookies.get('colors')
+            } else {
+                this.colors = {
+                    'event-1': [271, '23%', '26%'],   // Martinique
+                    'event-2': [162, '14%', '68%'],   // Edward
+                    'event-3': [31, '89%', '68%'],    // Rajah
+                    'event-4': [199, '25%', '46%'],   // gray
+                    'event-5': [136, '72%', '45%'],   // green
+                    'event-6': [195, '100%', '50%'],   // Smalt Blue
+                    'event-7': [349, '84%', '77%'],   // Smalt Blue
+                    'event-8': [293, '71%', '57%'],   // Smalt Blue
+                    'event-9': [44, '55%', '37%'],   // Smalt Blue
+                    'event-10': [247, '55%', '37%'],   // Smalt Blue
+                    'event-11': [81, '52%', '21%'],   // Smalt Blue
+                    'event-12': [11, '81%', '53%'],   // Smalt Blue
+                    'event-13': [240, '81%', '79%'],   // Smalt Blue
+                    'event-14': [308, '21%', '35%'],   // Smalt Blue
+                    'event-15': [176, '80%', '56%'],   // Smalt Blue
+                    'event-16': [359, '79%', '33%'],   // Smalt Blue
+                }
+            }
+
             // first create a collection of request, and send them all together.
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
             let requests = [];
@@ -141,7 +174,9 @@
                 this.showDropdownCover = true
             });
 
-
+            EventBus.$on('changeColor', (courseId) => {
+                this.colorPickerCourse = this.sanitizeCourse[courseId]
+            })
 
 
         },
@@ -187,24 +222,9 @@
                     color: "#00bfff",
                 },
                 droppingStart: false,
-                colors: [
-                    [271, '23%', '26%'],   // Martinique
-                    [162, '14%', '68%'],   // Edward
-                    [31, '89%', '68%'],    // Rajah
-                    [199, '25%', '46%'],   // gray
-                    [136, '72%', '45%'],   // green
-                    [195, '100%', '50%'],   // Smalt Blue
-                    [349, '84%', '77%'],   // Smalt Blue
-                    [293, '71%', '57%'],   // Smalt Blue
-                    [44, '55%', '37%'],   // Smalt Blue
-                    [247, '55%', '37%'],   // Smalt Blue
-                    [81, '52%', '21%'],   // Smalt Blue
-                    [11, '81%', '53%'],   // Smalt Blue
-                    [240, '81%', '79%'],   // Smalt Blue
-                    [308, '21%', '35%'],   // Smalt Blue
-                    [176, '80%', '56%'],   // Smalt Blue
-                    [359, '79%', '33%'],   // Smalt Blue
-                ]
+                colorPickerCourse: null,
+                colors: {
+                }
             }
         },
         watch: {
@@ -222,7 +242,7 @@
                     let courseId = Object.keys(courses)[i];
                     let course = courses[courseId];
                     course.courseId = courseId;
-                    course.event = this.getCourseDataEvent(courseId)
+                    course.event = this.getCourseDataEvent(courseId);
                     course.color = this.getCourseColor(course.event);
                 }
                 return courses
@@ -306,8 +326,7 @@
             },
             // we use data event tag for color of each course. We need to add event to this.course
             getCourseColor: function(dataEvent){
-                let data_event_id = parseInt(dataEvent.split("-")[1])
-                return 'hsl(' + this.colors[data_event_id].join(',') + ')'
+                return 'hsl(' + this.colors[dataEvent].join(',') + ')'
             },
             // get credit for different semester
             getCredit: function(semester) {
@@ -402,7 +421,21 @@
                 }
             },
 
+            changeColor: function(value) {
+                let color = [
+                    parseInt(value.color.slice(4).split(',')[0]),
+                    parseInt(value.color.split(',')[1]) + '%',
+                    parseInt(value.color.split(',')[2]) + '%',
+                ];
+                let courseId = value.courseId;
+                let event = this.sanitizeCourse[courseId].event;
+                this.$set(this.colors, event, color);
+                Vue.$cookies.set('colors', this.colors)
+            },
 
+            closeColor: function () {
+                this.colorPickerCourse = null
+            }
 
         }
     }
@@ -457,7 +490,7 @@
     {
         opacity: 0;
     }
-
+//========================================================================================
 
     .cd-schedule__dropdown-cover-layer {
         // layer between the content and the dropdown
@@ -470,6 +503,7 @@
         opacity: 1;
     }
 
+
     .dropping-enter-active,
     .dropping-leave-active {
         transition: opacity .5s;
@@ -480,6 +514,31 @@
             /* .fade-leave-active below version 2.1.8 */
     {
         opacity: 0;
+    }
+
+    // ==========================================================================
+    .colorpicker-enter-active,
+    .colorpicker-leave-active {
+        transition: transform .5s, opacity .5s;
+        transition-timing-function: cubic-bezier(.8, .3, 0.25, 1.75);
+        transform: scale(1);
+    }
+
+    .colorpicker-enter,
+    .colorpicker-leave-active {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    .cd-schedule__colorpicker-cover-layer {
+        // layer between the content and the dropdown
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        opacity: 1;
     }
 
 

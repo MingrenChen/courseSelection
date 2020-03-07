@@ -38,7 +38,8 @@
                     return 0
                 }).reduce((a,b) => a + b, 0)/2
             },
-        }
+        },
+
     }
 </script>
 

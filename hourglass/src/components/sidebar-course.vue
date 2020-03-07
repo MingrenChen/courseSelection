@@ -40,19 +40,26 @@
     export default {
         name: "sidebar-course",
         components: {
-            sectionbutton
+            sectionbutton,
+
         },
         props: ['selections','course', 'showCourse'],
         data: function () {
             return {
-                headerStyle: {height: '100%', background: this.course.color},
                 classList: {"sidebar-course": true, "sidebar-show-course": this.showCourse}
             }
         },
         mounted: function(){
-            this.headerStyle.height = this.$refs['sidebar-header'].offsetHeight + 'px'
+            this.headerStyle.height = this.$refs['sidebar-header'].offsetHeight + 'px';
+        },
+        updated: function(){
         },
         computed: {
+            headerStyle: function(){
+                let color = this.$parent.$parent.colors[this.course.event]
+                let s = "hsl(" + color[0] + ", " + color[1] + ',' + color[2] + ")";
+                return {height: '100%', background: s}
+            },
             courseHeader: function(){
                 if (!this.showCourse){
                     return this.course.code.slice(0, 6) + this.course.section + " " + this.course.courseTitle
@@ -90,6 +97,7 @@
             extendCourse: function(){
                 this.finalHeight = this.$refs['sidebar-content'].offsetHeight;
                 this.currentHeight = this.$refs['sidebar-header'].offsetHeight;
+                console.log(this.finalHeight, this.currentHeight)
                 gsap.to('.sidebar-show-course .sidebar-header', {scaleY: this.finalHeight/this.currentHeight, duration: 0.2, transformOrigin:"top"})
             },
             closeCourse: function(){
@@ -122,7 +130,7 @@
                 })
             },
             changeColor: function () {
-                
+                EventBus.$emit('changeColor', this.course.courseId)
             }
         }
     }
