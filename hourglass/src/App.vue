@@ -12,7 +12,7 @@
         <transition name="colorpicker">
             <color-picker v-if="colorPickerCourse" :change="changeColor" :course="colorPickerCourse"></color-picker>
         </transition>
-<!--        <div v-if="colorPickerCourse" class="cd-schedule__colorpicker-cover-layer" @click="closeColor"></div>-->
+        <div v-if="colorPickerCourse" class="cd-schedule__colorpicker-cover-layer" @click="closeColor"></div>
 
 
         <sidebar v-if="!$isMobile && this.selectionLoading" :sidebar-state="this.sidebarState" :courses="this.sanitizeCourse"
@@ -533,7 +533,7 @@
     .cd-schedule__colorpicker-cover-layer {
         // layer between the content and the dropdown
         position: fixed;
-        z-index: 1;
+        z-index: 2;
         top: 0;
         left: 0;
         height: 100%;

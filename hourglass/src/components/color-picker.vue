@@ -160,17 +160,6 @@
         top: 30%;
     }
 
-    .color-picker__overlay {
-        width: 100%;
-        height: 100vh;
-        position: fixed;
-        top: 0px;
-        left: 0;
-        background: black;
-        z-index: 0;
-        opacity: 0;
-    }
-
     .color-picker__flyout {
         width: 240px;
         border: 1px solid #eee;
@@ -181,7 +170,7 @@
         position: absolute;
         bottom: -170px;
         left: -100px;
-        z-index: 2;
+        z-index: 3;
     }
 
     .color-picker__inner {

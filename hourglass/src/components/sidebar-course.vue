@@ -46,6 +46,7 @@
         props: ['selections','course', 'showCourse'],
         data: function () {
             return {
+                headerStyle: {height: '100%', background: this.course.color},
                 classList: {"sidebar-course": true, "sidebar-show-course": this.showCourse}
             }
         },
@@ -53,13 +54,9 @@
             this.headerStyle.height = this.$refs['sidebar-header'].offsetHeight + 'px';
         },
         updated: function(){
+            this.headerStyle.background = this.course.color;
         },
         computed: {
-            headerStyle: function(){
-                let color = this.$parent.$parent.colors[this.course.event]
-                let s = "hsl(" + color[0] + ", " + color[1] + ',' + color[2] + ")";
-                return {height: '100%', background: s}
-            },
             courseHeader: function(){
                 if (!this.showCourse){
                     return this.course.code.slice(0, 6) + this.course.section + " " + this.course.courseTitle
@@ -198,6 +195,7 @@
             float: left;
             left: 0;
             /*height: 100%;*/
+            cursor: pointer;
             width: $sidebar-header-width;
         }
     }
