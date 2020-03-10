@@ -7,7 +7,6 @@ import VueGlobalVariable from 'vue-global-var'
 import VueNotification from "@kugatsu/vuenotification";
 import VueCookies from 'vue-cookies'
 
-
 Vue.use(VueSimpleAlert);
 Vue.config.productionTip = false
 

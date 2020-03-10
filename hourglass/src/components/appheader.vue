@@ -1,6 +1,6 @@
 <template>
     <div id="searchArea">
-        <navigator></navigator>
+        <navigator :meeting-times="allMeetingTime"></navigator>
         <div class="cd-sidenav__semester">
             <div class="cd-sidenav__semester-toggle">
                 <i class="fab fa-canadian-maple-leaf" :class="semesterClass('fall')"></i>
@@ -44,7 +44,6 @@
             'allMeetingTime'
         ],
         mounted() {
-            // console.log(this.allMissingSections)
         },
         computed: {
             toggleConfig: function () {
@@ -65,11 +64,12 @@
             },
             // the following 2 methods are for search and autocomplete
             search: function (input) {
-                return axios.get('http://www.talentgroup.agency:2000/getautocomplete/' + input).then(response => {
+                return axios.get('http://localhost:2000/getautocomplete/' + input).then(response => {
                     return response.data
                 })
             },
             getResultValue(result) {
+                console.log(result)
                 let course = Object.values(result)[0];
                 if (!this.$isMobile){
                     return course.code.slice(0, 6) + course.section + " " + course.courseTitle

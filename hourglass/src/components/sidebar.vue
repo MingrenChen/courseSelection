@@ -1,6 +1,8 @@
 <template>
     <div class="sidenav">
-        <div id="logo">logo here</div>
+        <div id="logo">
+            <img src="../assets/image/logo2.png">
+        </div>
         <div class="sidebar-credit">
             <span>Credit - Fall: {{getCredit('F')}} , Winter: {{getCredit('S')}} </span>
         </div>
@@ -16,6 +18,8 @@
 </template>
 
 <script>
+    import logo from '../assets/image/logo.png'
+
     export default {
         name: "sidebar",
         props: ['courses', 'selections', 'sidebarState'],
@@ -45,6 +49,7 @@
 
 <style scoped lang="scss">
     @import "../assets/css/variable.scss";
+
     .sidenav {
         height: 100%; /* Full-height: remove this if you want "auto" height */
         width: $sidenav-width; /* Set the width of the sidebar */
@@ -60,6 +65,9 @@
 
         #logo{
             height: 10%;
+            img {
+                height: 100%;
+            }
         }
         .sidebar-credit {
             height: 3%;

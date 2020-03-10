@@ -14,13 +14,23 @@
                     Report Bug
                 </a>
                 <a @click="generateTimetableClick">
-                    <img src="https://img.icons8.com/dotty/20/000000/engineering.png">                    Generate Timetable
+                    <img src="https://img.icons8.com/dotty/20/000000/engineering.png">
+                    Generate Timetable
+                </a>
+                <a @click="exportToCalendar">
+                    <img src="https://img.icons8.com/dotty/20/000000/calendar.png">
+                    Export to Calendar
                 </a>
             </div>
     </div>
 </template>
 
 <script>
+
+    const ics = require('ics');
+    const fs = require("file-system");
+
+    import Config from "../assets/js/.config";
     import $ from "jquery"
     import html2canvas from 'html2canvas'
     import EventBus from "../assets/js/EventBus";
@@ -29,14 +39,23 @@
     import { MaxHeap } from '@datastructures-js/heap';
     import shuffle from "../assets/js/Shuffle";
 
+    let getScheduleTimestamp = function (time) {
+        //accepts hh:mm format - convert hh:mm to timestamp
+        time = time.replace(/ /g,'');
+        let timeArray = time.split(':');
+        return (parseInt(timeArray[0]) * 60 + parseInt(timeArray[1]));
+    };
+
     export default {
         name: "navigator",
-
         data: function() {
             return {
                 isOpen: false,
             }
         },
+        props: [
+            'meetingTimes'
+        ],
         mounted() {
             EventBus.$on("closeDropdown", function () {
                 this.isOpen = false
@@ -46,7 +65,6 @@
             menuUrl: function () {
                 let size = this.$isMobile ? 25 : 50;
                 return "https://img.icons8.com/officel/" + size + "/000000/menu.png"
-
             }
         },
         methods: {
@@ -103,27 +121,70 @@
                 Object.keys(this.$parent.$parent.allMissingSections).forEach(courseId => {
                     let method = this.$parent.$parent.allMissingSections[courseId];
                     Object.values(method).forEach(sections => {
-                        let best_sections = {}
+                        let best_sections = {};
                         //此 method 的候选
                         Object.keys(sections).forEach(sectionId => {
                             // method是这门课所有tut/pra/lec的section
                             let section = sections[sectionId];
                             best_sections[sectionId] = getTotalScore(section, this.$parent.$parent.allMeetingTime, value)
-                        })
+                        });
                         // 用heap找出这些candidate中得分最高的n个
                         let heap = MaxHeap.heapify(Object.keys(best_sections).map(sectionId => {
-                            let result = {}
-                            result['value'] = sectionId
-                            result['key'] = best_sections[sectionId]
+                            let result = {};
+                            result['value'] = sectionId;
+                            result['key'] = best_sections[sectionId];
                             return result
-                        }))
-                        let result = []
+                        }));
+                        let result = [];
                         for (let i=0; i < 3; i++){
                             result.push(heap.extractRoot());
                         }
-                        result = shuffle(result.filter(element => !!element))
+                        result = shuffle(result.filter(element => !!element));
                         EventBus.$emit('selectSection', {courseId: courseId, sectionId: result[0]['value']})
                     })
+                })
+            },
+
+            exportToCalendar: function() {
+                let schedule = this.meetingTimes;
+                let importantDate = Config.importantDate;
+                let events = [];
+                schedule.forEach(event => {
+                    let startDate = importantDate[event.section].start;
+                    startDate = Config.functions.getDateOfNextDay(startDate, event.meetingDay);
+                    let endDate = importantDate[event.section].end;
+                    let startTime = getScheduleTimestamp(event.meetingStartTime);
+                    let endTime = getScheduleTimestamp(event.meetingEndTime);
+
+                    let duration = (endTime - startTime);
+
+                    startDate.push(parseInt(startTime / 60));
+                    startDate.push(startTime%60);
+
+                    let RRULE = 'FREQ=WEEKLY;';
+                    RRULE += "UNTIL=" + Config.functions.getDateTimeString(endDate) + ';';
+                    events.push({
+                        start: startDate,
+                        duration: {hours: parseInt(duration / 60), minutes: duration % 60},
+                        title: event.code + ' ' + event.courseTitle,
+                        recurrenceRule: RRULE,
+                        description: event.selectedSectionId
+                    })
+                });
+                ics.createEvents(events, (err, value) => {
+                    function download(filename, text) {
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                        element.setAttribute('download', filename);
+
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
+
+                        element.click();
+
+                        document.body.removeChild(element);
+                    }
+                    download('courses.ics', value)
                 })
             }
         }

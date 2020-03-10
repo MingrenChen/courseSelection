@@ -94,7 +94,6 @@
             extendCourse: function(){
                 this.finalHeight = this.$refs['sidebar-content'].offsetHeight;
                 this.currentHeight = this.$refs['sidebar-header'].offsetHeight;
-                console.log(this.finalHeight, this.currentHeight)
                 gsap.to('.sidebar-show-course .sidebar-header', {scaleY: this.finalHeight/this.currentHeight, duration: 0.2, transformOrigin:"top"})
             },
             closeCourse: function(){
@@ -194,7 +193,6 @@
             display: block;
             float: left;
             left: 0;
-            /*height: 100%;*/
             cursor: pointer;
             width: $sidebar-header-width;
         }

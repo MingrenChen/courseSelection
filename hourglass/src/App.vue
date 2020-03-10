@@ -97,7 +97,7 @@
             // after all request done, set selectionLoading to true, then timetable/sidebar render.
             let requests = [];
             Object.keys(this.selections).forEach(courseId => {
-                requests.push(axios.get('http://www.talentgroup.agency:2000/course/' + courseId))
+                requests.push(axios.get('http://localhost:2000/course/' + courseId))
             });
             axios.all(requests).then(responses => {
                 for (let i=0;i<responses.length; i++){
@@ -379,6 +379,15 @@
                     selections[courseId] = [sectionId]
                 } else {
                     selections[courseId].push(sectionId)
+                }
+                let section = this.sanitizeCourse[courseId].meetings[sectionId];
+                if (section.actualWaitlist < 50) {
+                    this.$notification.error('Wait List length is ' + section.actualWaitlist,
+                        {
+                            position: "topCenter",
+                            showCloseIcn:true,
+                            title: "This section is already full"
+                        });
                 }
                 this.selections = selections
             },

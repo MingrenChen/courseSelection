@@ -4,6 +4,8 @@ var request = require('request');
 var http = require('http');
 var path = require('path')
 var cors = require('cors')
+const https = require('https');
+
 const fs = require('fs');
 
 function jsonParse() {
@@ -55,30 +57,61 @@ app.get('/getautocomplete/:keyword?',function(req, res) {
         ips.push(ip)
         console.log(ip + " came in")
     }
-    let keyword = req.params.keyword
+    let keyword = req.params.keyword;
     if (!keyword){
         res.send([])
     }
-    const course_titles = Object.keys(courses);
-    let arr = []
-    let i = 0
-    while (i<course_titles.length){
-        if (course_titles[i].substr(0, keyword.length).toUpperCase() === keyword.toUpperCase()) {
-            // arr.push(course_titles[i].substring(0,8) + course_titles[i][9] + " " + courses[course_titles[i]].courseTitle)
-            let course = {}
-            course[course_titles[i]] = courses[course_titles[i]]
-            arr.push(course)
-        }
-        i++;
-    }
-    res.send(arr)
-});
+    let url = 'https://timetable.iit.artsci.utoronto.ca/api/20199/courses?org=&code=' + keyword;
+
+    https.get(url, (value) => {
+        let rawData = '';
+        value.on('data', (chunk) => { rawData += chunk; });
+        value.on('end', () => {
+            try {
+                const courses = JSON.parse(rawData);
+                res.send(Object.keys(courses).map(courseId => {
+                    let result = {}
+                    result[courseId] = courses[courseId]
+                    return result
+                }))
+            } catch (e) {
+                console.error(e.message);
+            }
+        });
+
+    })});
 
 app.get('/course/:courseTitle', function (req, res) {
     console.log("ask for course " + req.params.courseTitle)
-    let course = {}
-    course[req.params.courseTitle] = courses[req.params.courseTitle]
-    res.send(course)
+    let url = 'https://timetable.iit.artsci.utoronto.ca/api/20199/courses?org=&code=' +
+        req.params.courseTitle.split('-')[0] +
+        '&section=' +
+        req.params.courseTitle.split('-')[1]
+    https.get(url, (value) => {
+        let rawData = '';
+        value.on('data', (chunk) => { rawData += chunk; });
+        value.on('end', () => {
+            try {
+                const course = JSON.parse(rawData);
+                res.send(course)
+            } catch (e) {
+                console.error(e.message);
+            }
+        });
+
+    })
+    // res.send(course)
+})
+
+app.get('/updatecourses', function (req, res) {
+
+    // https.get('', (value) => {
+    //     value.on('data', (d) => {
+    //         process.stdout.write(d);
+    //     });
+    // }).on("error", (err) => {
+    //     console.log("Error: " + err.message);
+    // });
 })
 
 
