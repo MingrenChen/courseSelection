@@ -69,7 +69,6 @@
                 })
             },
             getResultValue(result) {
-                console.log(result)
                 let course = Object.values(result)[0];
                 if (!this.$isMobile){
                     return course.code.slice(0, 6) + course.section + " " + course.courseTitle

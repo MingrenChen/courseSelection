@@ -5,7 +5,6 @@ var http = require('http');
 var path = require('path')
 var cors = require('cors')
 const https = require('https');
-
 const fs = require('fs');
 
 function jsonParse() {
@@ -16,8 +15,7 @@ function jsonParse() {
     }
 }
 
-let courses_raw = fs.readFileSync('course.json');
-let courses = JSON.parse(courses_raw);
+let YEAR = 2019
 
 var express = require('express');
 var app = express();
@@ -61,7 +59,7 @@ app.get('/getautocomplete/:keyword?',function(req, res) {
     if (!keyword){
         res.send([])
     }
-    let url = 'https://timetable.iit.artsci.utoronto.ca/api/20199/courses?org=&code=' + keyword;
+    let url = 'https://timetable.iit.artsci.utoronto.ca/api/' + YEAR + '9/courses?org=&code=' + keyword;
 
     https.get(url, (value) => {
         let rawData = '';
@@ -83,7 +81,8 @@ app.get('/getautocomplete/:keyword?',function(req, res) {
 
 app.get('/course/:courseTitle', function (req, res) {
     console.log("ask for course " + req.params.courseTitle)
-    let url = 'https://timetable.iit.artsci.utoronto.ca/api/20199/courses?org=&code=' +
+
+    let url = 'https://timetable.iit.artsci.utoronto.ca/api/' + YEAR + '9/courses?org=&code=' +
         req.params.courseTitle.split('-')[0] +
         '&section=' +
         req.params.courseTitle.split('-')[1]
@@ -102,19 +101,6 @@ app.get('/course/:courseTitle', function (req, res) {
     })
     // res.send(course)
 })
-
-app.get('/updatecourses', function (req, res) {
-
-    // https.get('', (value) => {
-    //     value.on('data', (d) => {
-    //         process.stdout.write(d);
-    //     });
-    // }).on("error", (err) => {
-    //     console.log("Error: " + err.message);
-    // });
-})
-
-
 
 
 app.listen(process.env.PORT || 2000);
