@@ -139,7 +139,6 @@
                         for (let i=0; i < 3; i++){
                             result.push(heap.extractRoot());
                         }
-                        result = shuffle(result.filter(element => !!element));
                         EventBus.$emit('selectSection', {courseId: courseId, sectionId: result[0]['value']})
                     })
                 })

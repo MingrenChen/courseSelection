@@ -381,8 +381,9 @@
                     selections[courseId].push(sectionId)
                 }
                 let section = this.sanitizeCourse[courseId].meetings[sectionId];
-                if (section.actualWaitlist < 50) {
-                    this.$notification.error('Wait List length is ' + section.actualWaitlist,
+                if (section.actualWaitlist > 50) {
+                    this.$notification.error('Wait List length is ' + section.actualWaitlist +
+                        '. \nCapacity: ' + section.enrollmentCapacity,
                         {
                             position: "topCenter",
                             showCloseIcn:true,
