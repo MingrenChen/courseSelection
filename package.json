@@ -26,7 +26,7 @@
     "ngx-bootstrap": "^4.0.1",
     "npm": "^6.13.6",
     "request": "^2.88.0",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "vue-js-toggle-button": "^1.3.3"
   }
 }
